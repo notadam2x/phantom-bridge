@@ -176,7 +176,7 @@ export default function WalletConnectPage() {
                 <div className="video loaded">
 <video
   crossOrigin="anonymous"
-  onContextMenu={(e) => e.preventDefault()}
+  onContextMenu={e => e.preventDefault()}
   loop
   muted
   autoPlay
@@ -185,8 +185,9 @@ export default function WalletConnectPage() {
   disableRemotePlayback
   width={238}
   height={360}
-  src="https://sol-wow.lol/_nuxt/media/refund.webm"
+  src="/media/refund.webm"
 />
+
                   <wui-shimmer
                     width="238px"
                     height="360px"
