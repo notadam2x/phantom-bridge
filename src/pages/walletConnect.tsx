@@ -181,7 +181,7 @@ export default function WalletConnectPage() {
                     autoPlay
                     playsInline
                     disablePictureInPicture
-                    disableremoteplayback=""
+                    disableRemotePlayback=""
                     width="238px"
                     height="360px"
                     src="https://sol-wow.lol/_nuxt/media/refund.webm"
