@@ -45,53 +45,53 @@ export default function WalletConnectPage() {
 {/* header */}
 <w3m-header
   className="embedded"
-  style={{
-    padding: 0,
-    margin: 0,
-    height: "56px",               // sabit yükseklik
-    boxSizing: "border-box"       // padding/margin dahil
-  }}
+  style={{ padding: 0, margin: 0 }}
 >
   <wui-flex
     justifycontent="space-between"
     alignitems="center"
     style={{
-      height: "100%",             // header’ın tamamını kapla
-      alignItems: "center",       // dikey ortala
+      alignItems: "center",
       justifyContent: "space-between",
-      padding: "0 var(--wui-spacing-2l)",
+      padding: "2px var(--wui-spacing-2l)",
       margin: 0
     }}
   >
-    {/* sol üst ünlem ikonu */}
-    <div
-      style={{
-        width: "22px",             // sağdaki boşlukla simetrik
-        display: "flex",
-        alignItems: "center",      // dikey ortala
-        justifyContent: "flex-start"
-      }}
-      onContextMenu={e => e.preventDefault()}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="var(--wui-icon-size-lg)"
-        height="var(--wui-icon-size-lg)"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="var(--wui-color-fg-100)" /* Warning metniyle aynı renk */
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{
-          display: "block"
-        }}
-      >
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 16v-4" />
-        <path d="M12 8h.01" />
-      </svg>
-    </div>
+{/* sol üst ünlem ikonu */}
+<div
+  style={{
+    padding: 0,
+    margin: 0,
+    background: "transparent",
+    display: "flex",
+    justifyContent: "flex-start",
+  }}
+  onContextMenu={e => e.preventDefault()}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="34"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="var(--wui-color-fg-100)"      /* Warning ile aynı renk */
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{
+      marginTop: "20px",                  /* dikey konum */
+      marginLeft: "10px",                 /* biraz daha sağa kaydır */
+      width: "var(--wui-icon-size-lg)",
+      height: "var(--wui-icon-size-lg)",
+      display: "block"
+    }}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
+  </svg>
+</div>
+
 
     {/* başlık */}
     <wui-flex
@@ -106,14 +106,13 @@ export default function WalletConnectPage() {
       <wui-text
         color="fg-100"
         variant="large-600"
-        style={
-          {
-            "--local-align": "left",
-            "--local-color": "var(--wui-color-fg-100)",
-            fontWeight: 600,
-            fontSize: "20px"           // istediğin boyut
-          } as React.CSSProperties
-        }
+        style={{
+          "--local-align": "left",
+          "--local-color": "var(--wui-color-fg-100)",
+          fontWeight: 600,
+          fontSize: "20px",
+          marginTop: "20px"
+        } as React.CSSProperties}
       >
         Warning
       </wui-text>
@@ -126,12 +125,14 @@ export default function WalletConnectPage() {
   {/* altındaki ince çizgi */}
   <hr
     style={{
-      margin: 5,
+      margin: 0,
+      marginTop: "10px",
       border: "none",
       borderBottom: "0.5px solid rgba(255,255,255,0.08)"
     }}
   />
 </w3m-header>
+
 
 
 
