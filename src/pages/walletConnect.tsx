@@ -44,75 +44,53 @@ export default function WalletConnectPage() {
 {/* header */}
 <w3m-header
   className="embedded"
-  style={{
-    // Host element’in kendi padding/margin’ini sıfırlıyoruz
-    padding: 0,
-    margin: 0
-  }}
+  style={{ padding: 0, margin: 0 }}
 >
   <wui-flex
     justifycontent="space-between"
     alignitems="center"
     style={{
-      // İçerikleri yukarı taşıyoruz
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "2px var(--wui-spacing-2l)", // çok ince üst-alt boşluk
+      padding: "2px var(--wui-spacing-2l)",
       margin: 0
     }}
   >
-    {/* sol üst ünlem ikonu */}
-    <wui-icon-link
-      id="dynamic"
-      icon="info"
-      disabled="true"
-      style={
-        {
-          // ikonun çerçevesini ve padding’ini sıfırlıyoruz
-          "--local-border-radius": "0",
-          "--local-padding": "0"
-        } as React.CSSProperties
-      }
-    >
-      <button
-        disabled
-        style={{
-          padding: 0,
-          margin: 0,
-          border: 0,
-          background: "none"
-        }}
-      >
-        <wui-icon
-          color="inherit"
-          size="lg"
-          name="info"
-          style={
-            {
-              // ikonun rengini ve boyutunu ayarlıyoruz
-              "--local-color": "#eaeaea",
-              "--local-width": "var(--wui-icon-size-lg)"
-            } as React.CSSProperties
-          }
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="34"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 16v-4" />
-            <path d="M12 8h.01" />
-          </svg>
-        </wui-icon>
-      </button>
-    </wui-icon-link>
+{/* sol üst ünlem ikonu */}
+<div
+  style={{
+    padding: 0,
+    margin: 0,
+    background: "transparent",
+    display: "flex",
+    justifyContent: "flex-start",
+  }}
+  onContextMenu={e => e.preventDefault()}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="34"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="var(--wui-color-fg-100)"      /* Warning ile aynı renk */
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{
+      marginTop: "15px",                  /* dikey konum */
+      marginLeft: "10px",                 /* biraz daha sağa kaydır */
+      width: "var(--wui-icon-size-lg)",
+      height: "var(--wui-icon-size-lg)",
+      display: "block"
+    }}
+  >
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
+  </svg>
+</div>
+
 
     {/* başlık */}
     <wui-flex
@@ -127,13 +105,13 @@ export default function WalletConnectPage() {
       <wui-text
         color="fg-100"
         variant="large-600"
-        style={
-          {
-            "--local-align": "left",
-            "--local-color": "var(--wui-color-fg-100)",
-            fontWeight: 600
-          } as React.CSSProperties
-        }
+        style={{
+          "--local-align": "left",
+          "--local-color": "var(--wui-color-fg-100)",
+          fontWeight: 600,
+          fontSize: "20px",
+          marginTop: "15px"
+        } as React.CSSProperties}
       >
         Warning
       </wui-text>
@@ -147,12 +125,14 @@ export default function WalletConnectPage() {
   <hr
     style={{
       margin: 0,
-      marginTop: "2px", // flex’in hemen altına
+      marginTop: "10px",
       border: "none",
       borderBottom: "0.5px solid rgba(255,255,255,0.08)"
     }}
   />
 </w3m-header>
+
+
 
 
 
@@ -188,7 +168,7 @@ export default function WalletConnectPage() {
   }}
 >
 <img
-  src="/media/refund_anim2.apng"
+  src="/media/refund_ultra.webp"
   alt="Animasyon"
   onContextMenu={e => e.preventDefault()}
   style={{
