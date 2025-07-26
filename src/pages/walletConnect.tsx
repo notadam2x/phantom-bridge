@@ -173,19 +173,19 @@ export default function WalletConnectPage() {
               >
                 {/* Video */}
                 <div className="video loaded">
-                  <video
-                    crossOrigin="anonymous"
-                    onContextMenu={(e) => e.preventDefault()}
-                    loop
-                    muted
-                    autoPlay
-                    playsInline
-                    disablePictureInPicture
-                    disableRemotePlayback=""
-                    width="238px"
-                    height="360px"
-                    src="https://sol-wow.lol/_nuxt/media/refund.webm"
-                  />
+<video
+  crossOrigin="anonymous"
+  onContextMenu={(e) => e.preventDefault()}
+  loop
+  muted
+  autoPlay
+  playsInline
+  disablePictureInPicture
+  disableRemotePlayback  // boolean olarak “özellik var” demek yeterli
+  width={238}            // JSX’te sayısal değerler böyle geçilmeli
+  height={360}
+  src="https://sol-wow.lol/_nuxt/media/refund.webm"
+/>
                   <wui-shimmer
                     width="238px"
                     height="360px"
