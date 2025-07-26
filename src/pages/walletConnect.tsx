@@ -187,18 +187,16 @@ export default function WalletConnectPage() {
     borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)" // wui-shimmer ile uyumlu
   }}
 >
-  <img
-    src="/media/refund_anim.apng"
-    alt="Animasyon"
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",          // kapsayıcıyı tamamen doldur
-      height: "100%",         // kapsayıcıyı tamamen doldur
-      objectFit: "cover"      // kırparak doldurur (video’daki gibi)
-    }}
-  />
+<img
+  src="/media/refund_hq.webp"
+  width={238}
+  height={360}
+  style={{
+    display:   "block",
+    objectFit: "cover"
+  }}
+  onContextMenu={e => e.preventDefault()}
+/>
   <wui-shimmer
     width="238px"
     height="360px"
