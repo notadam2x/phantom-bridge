@@ -186,7 +186,6 @@ export default function WalletConnectPage() {
   width={238}
   height={360}
 >
-  <source src="/media/refund.webm" type="video/webm" />
   <source src="/media/refund.mp4"  type="video/mp4" />
 </video>
                   <wui-shimmer
