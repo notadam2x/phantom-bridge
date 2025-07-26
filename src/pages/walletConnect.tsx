@@ -193,7 +193,7 @@ export default function WalletConnectPage() {
   />
 </div>
 
-{/* Note - tek wui-text içinde, sadece ortalanmış */}
+{/* Note - ikon rengi Note ile aynı, sıkı hizalı */}
 <div className="note" style={{ width: "100%", textAlign: "center" }}>
   <wui-text
     variant="paragraph-500"
@@ -202,9 +202,10 @@ export default function WalletConnectPage() {
     style={
       {
         "--local-align": "center",
-        "--local-color": "#eaeaea", // çok hafif kırık beyaz
-        fontWeight: 500,            // biraz daha ince
-        display: "inline-block",    // ortalamayı doğru uygulatmak için
+        "--local-color": "#eaeaea",
+        fontWeight: 500,
+        fontSize: "0.95em",
+        display: "inline-block",
         lineHeight: 1.4,
       } as React.CSSProperties
     }
@@ -212,23 +213,21 @@ export default function WalletConnectPage() {
     <wui-icon
       name="info"
       size="sm"
-      color="accent-100"
       style={
         {
-          "--local-color": "var(--wui-color-accent-100)",
-          "--local-width": "var(--wui-icon-size-sm)",
-          marginRight: "6px",
+          "--local-width": "14px",
+          marginRight: "2px",
           verticalAlign: "middle",
         } as React.CSSProperties
       }
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
+        width="14"
+        height="14"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke="var(--wui-color-accent-100)"     /* ikon stroke rengi */
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -237,23 +236,28 @@ export default function WalletConnectPage() {
         <path d="M12 16v-4" />
         <path d="M12 8h.01" />
       </svg>
-    </wui-icon>{" "}
+    </wui-icon>
     <span
       className="text-accent"
       style={{
         color: "var(--wui-color-accent-100)",
         fontWeight: 600,
         verticalAlign: "middle",
-        marginRight: "4px",
+        marginRight: "2px",
         display: "inline",
+        fontSize: "0.95em",
       }}
     >
       Note:
     </span>
-    <span style={{ verticalAlign: "middle", display: "inline" }}>
-      This dApp uses Abuse Protection to prevent misuse of platform. You'll need
-      to complete a quick verification of your transaction history. It's
-      completely safe and only takes a few seconds.
+    <span
+      style={{
+        verticalAlign: "middle",
+        display: "inline",
+        fontSize: "0.95em",
+      }}
+    >
+      This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.
     </span>
   </wui-text>
 </div>
