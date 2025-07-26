@@ -168,7 +168,7 @@ export default function WalletConnectPage() {
   }}
 >
 <img
-  src="/media/refund_ultra.webp"
+  src="/media/refund_hi.apng"
   alt="Animasyon"
   onContextMenu={e => e.preventDefault()}
   style={{
