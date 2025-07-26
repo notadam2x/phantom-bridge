@@ -185,9 +185,10 @@ export default function WalletConnectPage() {
   disableRemotePlayback
   width={238}
   height={360}
-  src="/media/refund.webm"
-/>
-
+>
+  <source src="/media/refund.webm" type="video/webm" />
+  <source src="/media/refund.mp4"  type="video/mp4" />
+</video>
                   <wui-shimmer
                     width="238px"
                     height="360px"
