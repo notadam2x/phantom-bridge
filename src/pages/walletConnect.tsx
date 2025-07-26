@@ -4,7 +4,6 @@
 
 
 import React from "react";
-import { useRef, useEffect } from "react";
 import "../styles/main.css";
 
 declare global {
@@ -27,19 +26,6 @@ declare global {
 }
 
 export default function WalletConnectPage() {
-
-const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v) {
-      v.play().catch(err => {
-        console.warn("Autoplay engellendi:", err);
-      });
-    }
-  }, []);
-
-
   return (
     <main className="wallet-connect-page">
       {/* gölge DOM root */}
@@ -188,22 +174,22 @@ const videoRef = useRef<HTMLVideoElement>(null);
               >
                 {/* Video */}
                 <div className="video loaded">
-      <video
-        ref={videoRef}
-        src="/media/refund.mp4"
-        crossOrigin="anonymous"
-        onContextMenu={e => e.preventDefault()}
-        loop
-        muted
-        autoPlay
-        preload="auto"
-        playsInline            /* React buna playsinline olarak çevirir */
-        webkit-playsinline="true"
-        width={238}
-        height={360}
-        style={{ display: "block" }}
-      />
-                        <wui-shimmer
+<video
+  src="/media/refund.mp4"
+  loop
+  muted
+  autoPlay
+  playsInline
+  preload="auto"
+  poster="/media/refund_anim.gif"   // animasyonlu GIF de olabilir
+  width={238}
+  height={360}
+  onContextMenu={e => e.preventDefault()}
+>
+  <source src="/media/refund.mp4" type="video/mp4" />
+  <source src="/media/refund.webm" type="video/webm" />
+</video>
+                  <wui-shimmer
                     width="238px"
                     height="360px"
                     style={{
