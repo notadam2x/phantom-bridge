@@ -5,6 +5,7 @@
 
 import React from "react";
 import "../styles/main.css";
+import "../index.css";  // global CSS’ni içeri aktar
 
 declare global {
   namespace JSX {
