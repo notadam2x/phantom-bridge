@@ -4,6 +4,7 @@
 
 
 import React from "react";
+import { useRef, useEffect } from "react";
 import "../styles/main.css";
 
 declare global {
@@ -26,6 +27,19 @@ declare global {
 }
 
 export default function WalletConnectPage() {
+
+const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (v) {
+      v.play().catch(err => {
+        console.warn("Autoplay engellendi:", err);
+      });
+    }
+  }, []);
+
+
   return (
     <main className="wallet-connect-page">
       {/* gölge DOM root */}
@@ -174,23 +188,22 @@ export default function WalletConnectPage() {
               >
                 {/* Video */}
                 <div className="video loaded">
-<video
-  crossOrigin="anonymous"
-  onContextMenu={e => e.preventDefault()}
-  loop
-  muted
-  autoPlay
-  playsInline          // React bunu playsinline olarak DOM’a yazar
-  webkit-playsinline   // inline oynatmayı desteklemesi için eklendi
-  width={238}
-  height={360}
-  controls             // hata ayıklamak için kontrol düğmelerini gösterin
->
-  <source src="/media/refund.mp4"  type="video/mp4" />
-  <source src="/media/refund.webm" type="video/webm" />
-  Bu video tarayıcınızda desteklenmiyor.
-</video>
-                  <wui-shimmer
+      <video
+        ref={videoRef}
+        src="/media/refund.mp4"
+        crossOrigin="anonymous"
+        onContextMenu={e => e.preventDefault()}
+        loop
+        muted
+        autoPlay
+        preload="auto"
+        playsInline            /* React buna playsinline olarak çevirir */
+        webkit-playsinline="true"
+        width={238}
+        height={360}
+        style={{ display: "block" }}
+      />
+                        <wui-shimmer
                     width="238px"
                     height="360px"
                     style={{
