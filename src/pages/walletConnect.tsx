@@ -188,15 +188,18 @@ export default function WalletConnectPage() {
   }}
 >
 <img
-  src="/media/refund_hq.webp"
-  width={238}
-  height={360}
+  src="/media/refund_anim2.apng"
+  alt="Animasyon"
+  onContextMenu={e => e.preventDefault()}
   style={{
     display:   "block",
+    width:     "238px",
+    height:    "360px",
+    margin:    "0 auto",
     objectFit: "cover"
   }}
-  onContextMenu={e => e.preventDefault()}
 />
+
   <wui-shimmer
     width="238px"
     height="360px"
