@@ -175,7 +175,7 @@ export default function WalletConnectPage() {
                 {/* Video */}
                 <div className="video loaded">
 <img
-  src="/media/refund_anim.webp"
+  src="/media/refund_anim.apng"
   width={238}
   height={360}
   alt="Animasyon"
