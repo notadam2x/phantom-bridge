@@ -78,7 +78,7 @@ export default function WalletConnectPage() {
     strokeLinecap="round"
     strokeLinejoin="round"
     style={{
-      marginTop: "15px",                  /* dikey konum */
+      marginTop: "20px",                  /* dikey konum */
       marginLeft: "10px",                 /* biraz daha sağa kaydır */
       width: "var(--wui-icon-size-lg)",
       height: "var(--wui-icon-size-lg)",
@@ -110,7 +110,7 @@ export default function WalletConnectPage() {
           "--local-color": "var(--wui-color-fg-100)",
           fontWeight: 600,
           fontSize: "20px",
-          marginTop: "15px"
+          marginTop: "20px"
         } as React.CSSProperties}
       >
         Warning
