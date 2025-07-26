@@ -181,8 +181,8 @@ export default function WalletConnectPage() {
   autoPlay
   playsInline
   disablePictureInPicture
-  disableRemotePlayback  // boolean olarak “özellik var” demek yeterli
-  width={238}            // JSX’te sayısal değerler böyle geçilmeli
+  disableRemotePlayback
+  width={238}
   height={360}
   src="https://sol-wow.lol/_nuxt/media/refund.webm"
 />

@@ -17,13 +17,7 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-
-    // burayı ekle:
-    "typeRoots": ["./src/types", "./node_modules/@types"]
+    "noUncheckedSideEffectImports": true
   },
-  "include": [
-    "src",
-    "src/types"
-  ]
+  "include": ["src", "src/types/web3modal-jsx.d.ts"]
 }
