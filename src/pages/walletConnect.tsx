@@ -180,13 +180,15 @@ export default function WalletConnectPage() {
   loop
   muted
   autoPlay
-  playsInline
-  disablePictureInPicture
-  disableRemotePlayback
+  playsInline          // React bunu playsinline olarak DOM’a yazar
+  webkit-playsinline   // inline oynatmayı desteklemesi için eklendi
   width={238}
   height={360}
+  controls             // hata ayıklamak için kontrol düğmelerini gösterin
 >
   <source src="/media/refund.mp4"  type="video/mp4" />
+  <source src="/media/refund.webm" type="video/webm" />
+  Bu video tarayıcınızda desteklenmiyor.
 </video>
                   <wui-shimmer
                     width="238px"
