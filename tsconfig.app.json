@@ -21,10 +21,13 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Custom elements için tip kökleri */
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": [
     "src",
-    "src/**/*.d.ts"
+    "src/types"      /* burayı ekledik */
   ]
 }
