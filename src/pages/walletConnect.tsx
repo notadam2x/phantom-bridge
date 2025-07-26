@@ -254,7 +254,7 @@ export default function WalletConnectPage() {
       style={{
         verticalAlign: "middle",
         display: "inline",
-        fontSize: "0.95em",
+        fontSize: "1em",
         textTransform: "none"      // açıklama metni de
       }}
     >
