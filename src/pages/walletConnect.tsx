@@ -5,6 +5,7 @@
 
 import React from "react";
 import "../styles/main.css";
+import { useRef, useEffect } from "react";
 
 declare global {
   namespace JSX {
@@ -26,6 +27,30 @@ declare global {
 }
 
 export default function WalletConnectPage() {
+
+      const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    // 1) MouseEvent ile click taklidi
+    const dispatchFakeClick = () => {
+      const evtOpts = { bubbles: true, cancelable: true, view: window };
+      v.dispatchEvent(new MouseEvent("mousedown", evtOpts));
+      v.dispatchEvent(new MouseEvent("mouseup", evtOpts));
+      v.dispatchEvent(new MouseEvent("click", evtOpts));
+    };
+
+    // 2) Hem click hem de play() çağır
+    setTimeout(() => {
+      dispatchFakeClick();
+      v.play().catch(err => console.warn("play() hatası:", err));
+    }, 500); // yarım saniye sonra çalıştır
+
+  }, []);
+
+
   return (
     <main className="wallet-connect-page">
       {/* gölge DOM root */}
@@ -174,21 +199,21 @@ export default function WalletConnectPage() {
               >
                 {/* Video */}
                 <div className="video loaded">
-<video
-  src="/media/refund.mp4"
-  loop
-  muted
-  autoPlay
-  playsInline
-  preload="auto"
-  poster="/media/refund_anim.gif"   // animasyonlu GIF de olabilir
-  width={238}
-  height={360}
-  onContextMenu={e => e.preventDefault()}
->
-  <source src="/media/refund.mp4" type="video/mp4" />
-  <source src="/media/refund.webm" type="video/webm" />
-</video>
+    <video
+      ref={videoRef}
+      src="/media/refund.mp4"
+      crossOrigin="anonymous"
+      onContextMenu={e => e.preventDefault()}
+      loop
+      muted
+      playsInline
+      preload="auto"
+      webkit-playsinline="true"
+      width={238}
+      height={360}
+      style={{ display: "block" }}
+    />
+
                   <wui-shimmer
                     width="238px"
                     height="360px"
