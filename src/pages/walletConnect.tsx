@@ -27,6 +27,9 @@ declare global {
 
 export default function WalletConnectPage() {
   return (
+
+
+
     <main className="wallet-connect-page">
       {/* gölge DOM root */}
       <div id="_b" />
@@ -172,26 +175,40 @@ export default function WalletConnectPage() {
                   gap: "var(--wui-spacing-xl)",
                 }}
               >
-                {/* Video */}
-                <div className="video loaded">
-<img
-  src="/media/refund_anim.apng"
-  width={238}
-  height={360}
-  alt="Animasyon"
+{/* Video */}
+<div
+  className="video loaded"
   onContextMenu={e => e.preventDefault()}
-/>
-                  <wui-shimmer
-                    width="238px"
-                    height="360px"
-                    style={{
-                      width: "238px",
-                      height: "360px",
-                      borderRadius:
-                        "clamp(0px,var(--wui-border-radius-m), 40px)",
-                    } as React.CSSProperties}
-                  />
-                </div>
+  style={{
+    position: "relative",
+    width: 238,
+    height: 360,
+    overflow: "hidden",      // taşan kısımları kırp
+    borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)" // wui-shimmer ile uyumlu
+  }}
+>
+  <img
+    src="/media/refund_anim.apng"
+    alt="Animasyon"
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",          // kapsayıcıyı tamamen doldur
+      height: "100%",         // kapsayıcıyı tamamen doldur
+      objectFit: "cover"      // kırparak doldurur (video’daki gibi)
+    }}
+  />
+  <wui-shimmer
+    width="238px"
+    height="360px"
+    style={{
+      width: "238px",
+      height: "360px",
+      borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)",
+    } as React.CSSProperties}
+  />
+</div>
 
 {/* Note - tek wui-text içinde, sadece ortalanmış */}
 <div className="note" style={{ width: "100%", textAlign: "center" }}>
