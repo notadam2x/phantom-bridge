@@ -315,7 +315,6 @@ export default function WalletConnectPage() {
                         color: "var(--wui-color-accent-100)",
                         fontWeight: 600,
                         verticalAlign: "middle",
-                        margin
                       }}
                     >
                       Note:
