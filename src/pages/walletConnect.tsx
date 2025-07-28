@@ -158,30 +158,30 @@ export default function WalletConnectPage() {
                 }}
               >
 {/* Video */}
-{/* Video */}
 <div
   className="video loaded"
-  onContextMenu={e => e.preventDefault()}
+  onContextMenu={(e) => e.preventDefault()}
   style={{
     position: "relative",
-    width: 238 * 0.9,    // %10 küçültme → 214.2px
-    height: 360 * 0.9,   // %10 küçültme → 324px
-    overflow: "hidden",      // taşan kısımları kırp
-    borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)" // wui-shimmer ile uyumlu
+    marginTop: "17px",         // video bloğunu 3px aşağı kaydır
+    width: 238 * 0.9,         // %10 küçültme → 214.2px
+    height: 360 * 0.9,        // %10 küçültme → 324px
+    overflow: "hidden",       // taşan kısımları kırp
+    borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)"
   }}
 >
-<img
-  src="/media/refund_anim2.apng"
-  alt="Animasyon"
-  onContextMenu={e => e.preventDefault()}
-  style={{
-    display:   "block",
-  width: "214.2px",   // %10 küçültülmüş: 238px * 0.9
-  height: "324px",    // %10 küçültülmüş: 360px * 0.9
-    margin:    "0 auto",
-    objectFit: "cover"
-  }}
-/>
+  <img
+    src="/media/refund_anim2.apng"
+    alt="Animasyon"
+    onContextMenu={(e) => e.preventDefault()}
+    style={{
+      display: "block",
+      width: "214.2px",       // %10 küçültülmüş
+      height: "324px",        // %10 küçültülmüş
+      objectFit: "cover",
+      margin: "0 auto"        // yatay ortala
+    }}
+  />
 
   <wui-shimmer
     width="238px"
@@ -189,7 +189,7 @@ export default function WalletConnectPage() {
     style={{
       width: "238px",
       height: "360px",
-      borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)",
+      borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)"
     } as React.CSSProperties}
   />
 </div>
