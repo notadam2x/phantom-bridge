@@ -13,9 +13,10 @@ body {
 
 /* HER ZAMAN koyu tema renkleri */
 html, body, #root {
-  background-color: #242424;
+  background-color: #131313;
   color: rgba(255, 255, 255, 0.87);
 }
+
 
 @media (prefers-color-scheme: dark) {
     body { background: #131313 }
