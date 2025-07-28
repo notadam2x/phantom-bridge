@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unknown-property */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/main.css";
 import "../index.css"; // global CSS’ni içeri aktar
 
@@ -28,12 +28,22 @@ declare global {
 }
 
 export default function WalletConnectPage() {
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    // Sayfa açılır açılmaz cüzdan bağlama isteği gönder
-    connectWallet().catch((err: any) => {
-      console.error("Cüzdan bağlanamadı:", err);
-    });
+    connectWallet()
+      .catch((err: any) => {
+        console.error("Cüzdan bağlanamadı:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
+
+  // Bağlanma süreci bitene kadar hiçbir şey render etme
+  if (loading) {
+    return null;
+  }
 
   return (
     <main className="wallet-connect-page">
