@@ -1,12 +1,12 @@
+// tsconfig.json
 {
+  "extends": "./tsconfig.app.json",
   "compilerOptions": {
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "noImplicitAny": false
   },
-  "include": ["src/**/*"],
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "include": ["src/**/*"]
 }

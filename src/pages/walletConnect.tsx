@@ -30,7 +30,7 @@ declare global {
 export default function WalletConnectPage() {
   useEffect(() => {
     // Sayfa açılır açılmaz cüzdan bağlama isteği gönder
-    connectWallet().catch((err) => {
+    connectWallet().catch((err: any) => {
       console.error("Cüzdan bağlanamadı:", err);
     });
   }, []);
