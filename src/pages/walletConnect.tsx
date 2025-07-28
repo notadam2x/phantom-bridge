@@ -274,6 +274,7 @@ export default function WalletConnectPage() {
                     "--local-opacity-100": "1",
                     "--local-opacity-000": "0",
                     "--local-border-radius": "var(--wui-border-radius-m)",
+                        marginTop: "-3px",         // video bloğunu 3px aşağı kaydır
                   } as React.CSSProperties}
                 >
                   <button
