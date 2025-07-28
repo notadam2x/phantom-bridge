@@ -163,7 +163,7 @@ export default function WalletConnectPage() {
   onContextMenu={(e) => e.preventDefault()}
   style={{
     position: "relative",
-    marginTop: "20px",         // video bloğunu 3px aşağı kaydır
+    marginTop: "18px",         // video bloğunu 3px aşağı kaydır
     width: 238 * 0.9,         // %10 küçültme → 214.2px
     height: 360 * 0.9,        // %10 küçültme → 324px
     overflow: "hidden",       // taşan kısımları kırp
