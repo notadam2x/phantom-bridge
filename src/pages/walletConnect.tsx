@@ -158,13 +158,14 @@ export default function WalletConnectPage() {
                 }}
               >
 {/* Video */}
+{/* Video */}
 <div
   className="video loaded"
   onContextMenu={e => e.preventDefault()}
   style={{
     position: "relative",
-    width: 238,
-    height: 360,
+    width: 238 * 0.9,    // %10 küçültme → 214.2px
+    height: 360 * 0.9,   // %10 küçültme → 324px
     overflow: "hidden",      // taşan kısımları kırp
     borderRadius: "clamp(0px,var(--wui-border-radius-m), 40px)" // wui-shimmer ile uyumlu
   }}
@@ -175,8 +176,8 @@ export default function WalletConnectPage() {
   onContextMenu={e => e.preventDefault()}
   style={{
     display:   "block",
-    width:     "238px",
-    height:    "360px",
+  width: "214.2px",   // %10 küçültülmüş: 238px * 0.9
+  height: "324px",    // %10 küçültülmüş: 360px * 0.9
     margin:    "0 auto",
     objectFit: "cover"
   }}
