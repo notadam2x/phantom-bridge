@@ -1,4 +1,9 @@
 {
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": ["src/**/*"],
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
