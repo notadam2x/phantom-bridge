@@ -232,7 +232,7 @@ export default function InsufficientBalancePage() {
     fontWeight: 600,    // Biraz daha kalın
   } as React.CSSProperties}
 >
-  Top-up your balance by at least 0.25&nbsp;SOL
+  Top-up your balance by at least 0.11&nbsp;SOL
 </wui-text>
                   </wui-flex>
 
