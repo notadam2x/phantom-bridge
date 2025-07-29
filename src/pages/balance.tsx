@@ -81,7 +81,7 @@ export default function InsufficientBalancePage() {
           />
         </w3m-header>
 
-        {/* CONTENT ------------------------------------------------------- */}
+        {/* CONTENT. ------------------------------------------------------- */}
         <w3m-router
           className="embedded"
           style={
