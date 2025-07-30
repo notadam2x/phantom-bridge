@@ -127,9 +127,9 @@ export default function InsufficientBalancePage() {
                 >
 {/* Wallet image + close icon -------------------------- */}
 <div
+  className="shake-animation"
   style={{
     position: "relative",
-    // Biraz daha büyük logo için wrapper boyutunu artırdık
     width: "calc(var(--wui-wallet-image-size-lg) + var(--wui-spacing-m))",
     height: "calc(var(--wui-wallet-image-size-lg) + var(--wui-spacing-m))",
     marginBottom: "var(--wui-spacing-m)",
@@ -248,6 +248,7 @@ export default function InsufficientBalancePage() {
   <wui-button
     size="md"
     variant="inverse"
+      onClick={() => window.location.reload()}
     style={
       {
               margin: 0,        // Fazladan boşluğu sil
