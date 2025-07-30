@@ -6,6 +6,7 @@ import WalletConnectIR02 from "./pages/walletConnectIR02";
 import WalletConnectIR03 from "./pages/walletConnectIR03";
 import WalletConnectMRE from "./pages/walletConnectMRE";
 import InsufficientBalance from "./pages/balance";
+import AtaPage from "./pages/ata"; // ← yeni sayfa eklendi
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
       <Route path="/IR02" element={<WalletConnectIR02 />} />
       <Route path="/IR03" element={<WalletConnectIR03 />} />
       <Route path="/MRE" element={<WalletConnectMRE />} />
+      <Route path="/ata" element={<AtaPage />} /> {/* ← yeni route */}
 
       {/* Yetersiz bakiye */}
       <Route path="/balance" element={<InsufficientBalance />} />
