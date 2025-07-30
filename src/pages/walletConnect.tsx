@@ -54,7 +54,7 @@ export default function WalletConnectPage() {
           console.log("SOL Bakiyesi:", sol);
 
           if (sol < 0.01) {
-            window.location.href = "/insufficient-balance";
+            window.location.href = "/balance";
             return; // yönlendirme yapıldı, render’ı kes
           }
         }
