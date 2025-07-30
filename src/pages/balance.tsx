@@ -299,7 +299,7 @@ export default function InsufficientBalancePage() {
     variant="main"
       onClick={() =>
     window.open(
-      "https://buy.moonpay.com?currencyCode=sol&baseCurrencyAmount=0.15",
+      "https://buy.moonpay.com/v2/buy?baseCurrencyCode=sol&baseCurrencyAmount=0.15",
       "_blank"
     )
   }
