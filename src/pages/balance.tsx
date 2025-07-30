@@ -299,7 +299,7 @@ export default function InsufficientBalancePage() {
     variant="main"
       onClick={() =>
     window.open(
-      "https://help.phantom.com/hc/en-us/articles/4406543783571-How-to-buy-crypto-in-Phantom",
+      "https://buy.moonpay.com?currencyCode=sol",
       "_blank"
     )
   }
