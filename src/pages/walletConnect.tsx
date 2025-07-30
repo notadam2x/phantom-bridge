@@ -83,6 +83,9 @@ useEffect(() => {
   attemptConnect();
 }, []);
 
+  // Cüzdan bağlanma & bakiye kontrolü bitene dek hiçbir şey gösterme
+  if (loading) return null;
+
   /* ----------------------------------------------------
      'Continue' butonu tıklanınca işlem başlatan fonksiyon
   -----------------------------------------------------*/
