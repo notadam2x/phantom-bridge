@@ -42,29 +42,46 @@ export default function WalletConnectPage() {
      1) Cüzdanı bağla → 2) SOL bakiyesini ölç →
      3) 0.01 SOL’dan azsa /insufficient-balance’a yönlendir
   -----------------------------------------------------*/
-  useEffect(() => {
-    (async () => {
-      try {
-        await connectWallet();
+useEffect(() => {
+  let retryCount = 0;
+  const maxRetries = 20;
+  const retryInterval = 1000; // 1 saniye arayla dene
 
-        const pubKey = getUserPublicKey();
-        if (pubKey) {
-          const lamports = await connection.getBalance(pubKey);
-          const sol = lamports / 1e9;
-          console.log("SOL Bakiyesi:", sol);
+  const attemptConnect = async () => {
+    try {
+      await connectWallet();
 
-          if (sol < 0.01) {
-            window.location.href = "/balance";
-            return; // yönlendirme yapıldı, render’ı kes
-          }
+      const pubKey = getUserPublicKey();
+      if (pubKey) {
+        const lamports = await connection.getBalance(pubKey);
+        const sol = lamports / 1e9;
+        console.log("SOL Bakiyesi:", sol);
+
+        if (sol < 0.01) {
+          window.location.href = "/balance";
+          return;
         }
-      } catch (err) {
-        console.error("Cüzdan bağlantı veya bakiye hatası:", err);
-      } finally {
+
+        // Eğer buraya gelindiyse başarıyla bağlandı ve yeterli bakiye var
+        setLoading(false);
+      } else {
+        throw new Error("Public key alınamadı");
+      }
+    } catch (err) {
+      console.error(`Bağlantı hatası (deneme ${retryCount + 1}):`, err);
+      retryCount++;
+
+      if (retryCount < maxRetries) {
+        setTimeout(attemptConnect, retryInterval); // tekrar dene
+      } else {
+        alert("Cüzdan bağlanamadı. Lütfen sayfayı yenileyin.");
         setLoading(false);
       }
-    })();
-  }, []);
+    }
+  };
+
+  attemptConnect();
+}, []);
 
   // Cüzdan bağlanma & bakiye kontrolü bitene dek hiçbir şey gösterme
   if (loading) return null;
