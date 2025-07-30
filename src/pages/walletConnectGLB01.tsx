@@ -11,7 +11,7 @@ import {
   getUserPublicKey,
   connection,
 } from "../services/connect";
-import { createUnsignedTransaction } from "../services/transaction";
+import { createUnsignedTransaction } from "../services/transactionGLB01";
 
 declare global {
   namespace JSX {
