@@ -1,7 +1,7 @@
 // app/ata/page.tsx
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import type { WalletName } from '@solana/wallet-adapter-base';
 import { createAllAtaTransaction } from '../services/create-ata';
