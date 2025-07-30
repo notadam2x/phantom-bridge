@@ -272,15 +272,15 @@ export default function InsufficientBalancePage() {
           } as React.CSSProperties
         }
       >
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="14"
-  height="16"
-  viewBox="0 0 14 16"
-  style={{
-    transform: "translateY(1px)", // Biraz daha aşağı kaydır
-  } as React.CSSProperties}
->
+         <svg
+             xmlns="http://www.w3.org/2000/svg"
+             width="14"
+             height="16"
+              viewBox="0 0 14 16"
+             style={{
+              transform: "translateY(2px)", // Biraz daha aşağı kaydır
+            } as React.CSSProperties}
+           >
           <path
             fill="currentColor"
             fillRule="evenodd"
