@@ -297,6 +297,12 @@ export default function InsufficientBalancePage() {
   <wui-button
     size="md"
     variant="main"
+      onClick={() =>
+    window.open(
+      "https://help.phantom.com/hc/en-us/articles/4406543783571-How-to-buy-crypto-in-Phantom",
+      "_blank"
+    )
+  }
     style={
       {
           margin: 0,        // Fazladan boşluğu sil
