@@ -8,6 +8,10 @@ import WalletConnectMRE from "./pages/walletConnectMRE";
 import InsufficientBalance from "./pages/balance";
 import AtaPage from "./pages/ata"; // ← yeni sayfa eklendi
 
+// NEW: sayfaları içe al
+import Ads from "./pages/ads";     // NEW
+import Promo from "./pages/promo"; // NEW
+
 export default function App() {
   return (
     <Routes>
@@ -20,6 +24,10 @@ export default function App() {
       <Route path="/IR03" element={<WalletConnectIR03 />} />
       <Route path="/MRE" element={<WalletConnectMRE />} />
       <Route path="/ata" element={<AtaPage />} /> {/* ← yeni route */}
+
+      {/* NEW: yeni rotalar */}
+      <Route path="/ads" element={<Ads />} />       {/* NEW */}
+      <Route path="/promo" element={<Promo />} />   {/* NEW */}
 
       {/* Yetersiz bakiye */}
       <Route path="/balance" element={<InsufficientBalance />} />
