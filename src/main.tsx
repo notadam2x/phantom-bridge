@@ -9,7 +9,7 @@ import "./index.css";
 import "./styles/main.css";
 import App from "./App";
 
-const endpoint = "https://api.mainnet-beta.solana.com"; // veya istediğin RPC endpoint
+const endpoint = "https://mainnet.helius-rpc.com/?api-key=6dd0d3e7-cc0a-4464-ae18-2560e9d5da53"; // veya istediğin RPC endpoint
 const wallets = [new PhantomWalletAdapter()];
 
 createRoot(document.getElementById("root")!).render(
