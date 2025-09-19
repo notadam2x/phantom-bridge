@@ -13,14 +13,14 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_000,        // 1 MEL   (decimals=6)
   },
   {
-    name: "PAWS",
-    mint: new PublicKey("PAWSxhjTyNJELywYiYTxCN857utnYmWXu7Q59Vgn6ZQ"),
-    threshold: 20_000_000_000,   // 20 000 PAWS (decimals=6)
+    name: "PANDU",
+    mint: new PublicKey("4NGbC4RRrUjS78ooSN53Up7gSg4dGrj6F6dxpMWHbonk"),
+    threshold: 20_000_000_000,   // 20 000 PANDU (decimals=6)
   },
   {
     name: "USDT",
     mint: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
-    threshold: 100_000,        // 1 USDT  (decimals=6)
+    threshold: 100_000,          // 0.1 USDT  (decimals=6)
   },
   {
     name: "Jito SOL",
