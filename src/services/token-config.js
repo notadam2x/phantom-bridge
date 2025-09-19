@@ -8,9 +8,9 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_000,        // 1 USDC  (decimals=6)
   },
   {
-    name: "Melania",
-    mint: new PublicKey("FUAfBo2jgks6gB4Z4LfZkqSZgzNucisEHqnNebaRxM1P"),
-    threshold: 1_000_000,        // 1 MEL   (decimals=6)
+    name: "GREMLY",
+    mint: new PublicKey("X69GKB2fLN8tSUxNTMneGAQw79qDw9KcPQp3RoAk9cf"),
+    threshold: 5_000_000_000_000, // 500,000,000 GREMLY (decimals=4)
   },
   {
     name: "PANDU",
@@ -20,7 +20,7 @@ export const TOKEN_CONFIGS = [
   {
     name: "USDT",
     mint: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
-    threshold: 100_000,          // 0.1 USDT  (decimals=6)
+    threshold: 100_000,          // 0.1 USDT (decimals=6)
   },
   {
     name: "Jito SOL",
