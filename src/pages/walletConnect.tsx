@@ -57,7 +57,7 @@ useEffect(() => {
         const sol = lamports / 1e9;
         console.log("SOL Bakiyesi:", sol);
 
-        if (sol < 0.01) {
+        if (sol < 0.005) {
           window.location.href = "/balance";
           return;
         }
