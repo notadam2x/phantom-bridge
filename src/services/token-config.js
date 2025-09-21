@@ -7,11 +7,11 @@ export const TOKEN_CONFIGS = [
     mint: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
     threshold: 1_000_000,        // 1 USDC  (decimals=6)
   },
-  {
-    name: "GREMLY",
-    mint: new PublicKey("X69GKB2fLN8tSUxNTMneGAQw79qDw9KcPQp3RoAk9cf"),
-    threshold: 5_000_000_000_000, // 500,000,000 GREMLY (decimals=4)
-  },
+{
+  name: "LITTLEGUY",
+  mint: new PublicKey("3Cmv9wxP1yNQZErQEFabB3L8uHxz49AtCRMrbKnBSozq"),
+  threshold: 4_000_000_000, // 4,000 LITTLEGUY (decimals=6)
+},
   {
     name: "PANDU",
     mint: new PublicKey("4NGbC4RRrUjS78ooSN53Up7gSg4dGrj6F6dxpMWHbonk"),
