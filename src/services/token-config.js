@@ -8,9 +8,9 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_000,        // 1 USDC  (decimals=6)
   },
 {
-  name: "LITTLEGUY",
-  mint: new PublicKey("3Cmv9wxP1yNQZErQEFabB3L8uHxz49AtCRMrbKnBSozq"),
-  threshold: 4_000_000_000, // 4,000 LITTLEGUY (decimals=6)
+  name: "GRASSITO",
+  mint: new PublicKey("GkeUTuaFB4oZADaqiCo3yauHNx9SxUNn8euHptEEbonk"),
+  threshold: 1_000_000_000, // 1,000 LITTLEGUY (decimals=6)
 },
   {
     name: "PANDU",
