@@ -70,6 +70,12 @@ export const TOKEN_CONFIGS = [
     {
     name: "UPTOBER",
     mint: new PublicKey("6vVfbQVRSXcfyQamPqCzcqmA86vCzb2d7B7gmDDqpump"),
-    threshold: 1_000_00,        // 1 Raydium (decimals=6)
+    threshold: 1_000_00,        // 1 UPTOBER (decimals=6)
   },
+      {
+    name: "PEACEGUY",
+    mint: new PublicKey("85vdovHhkXnDi98EYMQmD2vXS82jRP1VDDXfkJ38pump"),
+    threshold: 1_000_00,        // 1 PEACEGUY (decimals=6)
+  },
+
 ];
