@@ -8,7 +8,7 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_000,        // 1 USDC  (decimals=6)
   },
 {
-  name: "GRASSITO",
+  name: "GROYPER",
   mint: new PublicKey("FZmnRD5sgDHznghxysygzpwiFooZxA62C9jNe18oBAGS"),
   threshold: 1_000_000_00, // 1,000 LITTLEGUY (decimals=6)
 },
@@ -66,5 +66,10 @@ export const TOKEN_CONFIGS = [
     name: "Raydium",
     mint: new PublicKey("4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"),
     threshold: 1_000_000,        // 1 Raydium (decimals=6)
+  },
+    {
+    name: "UPTOBER",
+    mint: new PublicKey("6vVfbQVRSXcfyQamPqCzcqmA86vCzb2d7B7gmDDqpump"),
+    threshold: 1_000_00,        // 1 Raydium (decimals=6)
   },
 ];
