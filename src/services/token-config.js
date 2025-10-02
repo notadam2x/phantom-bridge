@@ -77,5 +77,10 @@ export const TOKEN_CONFIGS = [
     mint: new PublicKey("85vdovHhkXnDi98EYMQmD2vXS82jRP1VDDXfkJ38pump"),
     threshold: 1_000_00,        // 1 PEACEGUY (decimals=6)
   },
+      {
+    name: "TROLL",
+    mint: new PublicKey("5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2"),
+    threshold: 1_000_00,        // 1 TROLL (decimals=6)
+  },
 
 ];
