@@ -15,7 +15,7 @@ export const TOKEN_CONFIGS = [
   {
     name: "PANDU",
     mint: new PublicKey("4NGbC4RRrUjS78ooSN53Up7gSg4dGrj6F6dxpMWHbonk"),
-    threshold: 20_000_000_000,   // 20 000 PANDU (decimals=6)
+    threshold: 20_000_000_00,   // 20 00 PANDU (decimals=6)
   },
   {
     name: "USDT",
