@@ -143,5 +143,11 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+    {
+    name: "DOGHOUSE",
+    mint: new PublicKey("4EyZeBHzExbXJTM6uVDiXyGVZVnf9Vi5rdBaBCFvBAGS"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
 
 ];
