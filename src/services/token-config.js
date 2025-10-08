@@ -15,7 +15,7 @@ export const TOKEN_CONFIGS = [
   {
     name: "PANDU",
     mint: new PublicKey("4NGbC4RRrUjS78ooSN53Up7gSg4dGrj6F6dxpMWHbonk"),
-    threshold: 20_000_000_00,   // 20 00 PANDU (decimals=6)
+    threshold: 20_000_000_00,   // 20 000 PANDU (decimals=6)
   },
   {
     name: "USDT",
@@ -82,5 +82,66 @@ export const TOKEN_CONFIGS = [
     mint: new PublicKey("5UUH9RTDiSpq6HKS6bp4NdU9PNJpXRXuiw6ShBTBhgH2"),
     threshold: 1_000_00,        // 1 TROLL (decimals=6)
   },
+
+  {
+    name: "SPECTRA",
+    mint: new PublicKey("Bm8MHt9vwK2RapFFZLa4AWfwLCzXAqCxanRj81xWBAGS"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+    name: "GREMLY",
+    mint: new PublicKey("DFfPq2hHbJeunp1F6eNyuyvBHcPpnTqaawn2tAFUpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  {
+    name: "VOLT",
+    mint: new PublicKey("FRsV3m924aGpLMuEekoo3JkkMt1oopaM4JY9ki5YLXrp"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  {
+    name: "USELESS",
+    mint: new PublicKey("Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  {
+    name: "PUMP",
+    mint: new PublicKey("pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  {
+    name: "REGRET",
+    mint: new PublicKey("DP4omjjY94NRJrECHBZyUQSpGrjtukoDyUbqb9Zzpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  {
+    name: "WLFI",
+    mint: new PublicKey("WLFinEv6ypjkczcS83FZqFpgFZYwQXutRbxGe7oC16g"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  {
+    name: "PSOL-PHANTOMSTAKE",
+    mint: new PublicKey("pSo1f9nQXWgXibFtKf7NWYxb5enAM4qfP6UJSiXRQfL"),
+    threshold: 1_000,        //  (decimals=9)
+  },
+
+  {
+    name: "RIZZMASS",
+    mint: new PublicKey("85cQsFgbi8mBZxiPppbpPXuV7j1hA8tBwhjF4gKW6mHg"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  {
+    name: "SPX6900",
+    mint: new PublicKey("J3NKxxXZcnNiMjKw9hYb2K4LUxgwB6t1FtPtQVsv3KFr"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
 
 ];
