@@ -54,7 +54,7 @@ export const TOKEN_CONFIGS = [
   },
   {
     name: "PYTH",
-    mint: new PublicKey("FRsV3m924aGpLMuEekoo3JkkMt1oopaM4JY9ki5YLXrp"),
+    mint: new PublicKey("HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3"),
     threshold: 10_000_000,       // 10 PYTH (decimals=6)
   },
   {
