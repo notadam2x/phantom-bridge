@@ -155,5 +155,11 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+        {
+    name: "GREMLY",
+    mint: new PublicKey("X69GKB2fLN8tSUxNTMneGAQw79qDw9KcPQp3RoAk9cf"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
 
 ];
