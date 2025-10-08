@@ -149,5 +149,11 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+      {
+    name: "SNAKEOFSOLANA",
+    mint: new PublicKey("3kM6vNo8WeCd7DY3EZBjPuFQ9h8gi3Bm5T8rFPQq1WBt"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
 
 ];
