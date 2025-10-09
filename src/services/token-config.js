@@ -203,6 +203,11 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+      name: "vngrd",
+    mint: new PublicKey("GJvLcMvQwznh1gAonWnqbqdSRrNCQmVzhfsZVvQdtM4b"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
   
 
 ];
