@@ -161,5 +161,48 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+          {
+    name: "8",
+    mint: new PublicKey("8ZEfp4PkEMoGFgphvxKJrDySfS3T73DBfxKCdAsPpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+            {
+    name: "SOLHolder",
+    mint: new PublicKey("EWsfRP9yrxyt8xTSv28MV1Ldn7UPpXBLgWtZ4YWMpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+    name: "Vanguard",
+    mint: new PublicKey("GJvLcMvQwznh1gAonWnqbqdSRrNCQmVzhfsZVvQdtM4b"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+{
+    name: "TROLLOWEN",
+    mint: new PublicKey("DG1Sos2qR8Ut7c2JRsNGydt99NNV5VKuSjZNbjXepump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+{
+    name: "ICM-INTERNETCAPITAL",
+    mint: new PublicKey("HRwo5GY87abyVy5tzW3g1RtgjrnxUEtWfDL7ftpjpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+{
+    name: "USCR",
+    mint: new PublicKey("USCRdwZP5UkKhJzhWuD7XjTUviHBtZJbLG7XpbKng9S"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+{
+    name: "DINDER",
+    mint: new PublicKey("DhRiFrZLMvU7ctRm3Y1kvMBaGqTP6WS3xJbbATgyBAGS"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
 
 ];
