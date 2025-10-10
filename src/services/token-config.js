@@ -197,20 +197,68 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+  
 {
     name: "DINDER",
     mint: new PublicKey("DhRiFrZLMvU7ctRm3Y1kvMBaGqTP6WS3xJbbATgyBAGS"),
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+  
+  
+{
       name: "vngrd",
     mint: new PublicKey("GJvLcMvQwznh1gAonWnqbqdSRrNCQmVzhfsZVvQdtM4b"),
     threshold: 1_000_00,        //  (decimals=6)
   },
 
-        name: "RaydiumLP",
-    mint: new PublicKey("7BwR5LrhPNSH64XcSU6DtUXu8cgB5FSQDTB3U8kgiWVH"),
-    threshold: 1_000_00,        //  (decimals=9)
+  
+  {
+        name: "ZBCN",
+    mint: new PublicKey("ZBCNpuD7YMXzTHB2fhGkGi78MNsHGLRXUhRewNRm9RU"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+        name: "BOT",
+    mint: new PublicKey("63bpnCja1pGB2HSazkS8FAPAUkYgcXoDwYHfvZZveBot"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+        name: "DOGGO",
+    mint: new PublicKey("9hnmRRR4jdGvDM89WMyq9UdDfWT6iuDYAjFZQfn7pump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+        name: "CLASH",
+    mint: new PublicKey("6nR8wBnfsmXfcdDr1hovJKjvFQxNSidN6XFyfAFZpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+        name: "BURGER",
+    mint: new PublicKey("632SvBrfaep51NGKnKtUHTR9J2T4uYGKEQkCgy42USA"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+        name: "DOGE-1",
+    mint: new PublicKey("DpBzjtgGLF7QA9Ug3eUVGbnqa6j3jvYBn1XuQuktvfhm"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+        name: "USELESS",
+    mint: new PublicKey("Dz9mQ9NzkBcCsuGPFJ3r1bS4wgqKMHBPiVuniW8Mbonk"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+    {
+        name: "PumpfunPepe",
+    mint: new PublicKey("5TfqNKZbn9AnNtzq8bbkyhKgcPGTfNDc9wNzFrTBpump"),
+    threshold: 1_000_00,        //  (decimals=6)
   },
 
   
