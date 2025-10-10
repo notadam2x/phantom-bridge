@@ -260,7 +260,84 @@ export const TOKEN_CONFIGS = [
     mint: new PublicKey("5TfqNKZbn9AnNtzq8bbkyhKgcPGTfNDc9wNzFrTBpump"),
     threshold: 1_000_00,        //  (decimals=6)
   },
+  
+
+
+ {
+        name: "LUMINARIES",
+    mint: new PublicKey("CFJxqK6Wo6CqCwa9RDwvLGUDUz3HYQXT15Lftqnupump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
 
   
+ {
+        name: "PINHEADS",
+    mint: new PublicKey("6mgqeeGHE5GrVk9fYdeJSjKTFZV1TVNAQTMYdHjfpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "EOFI",
+    mint: new PublicKey("39s1k9SZ13NZDGZwmTv3g1zFtspAvF1pQKtxXPp5pump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "SORA",
+    mint: new PublicKey("48yjoFSJ8m6jgDorrYvwfxoLCPAuML9sGz975ZAJtbBY"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "DOOD",
+    mint: new PublicKey("DvjbEsdca43oQcw2h3HW1CT7N3x5vRcr3QrvTUHnXvgV"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "SOMBRERO",
+    mint: new PublicKey("354jgbb56NmBnyd647sPmj8S1md9cBeiCPPhT6pQbonk"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "DORK",
+    mint: new PublicKey("A4RfnhcD1hk2QiVUx3TTtR7Af2RkgjvyJMcnogj9bonk"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "FARTCOIN",
+    mint: new PublicKey("9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "DJI6930",
+    mint: new PublicKey("DQnkBM4eYYMnVE8Qy2K3BB7uts1fh2EwBVktEz6jpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
+ {
+        name: "WORTHLESS",
+    mint: new PublicKey("iUdvUaxyRHh8PYVcmkgBpSJu5evpW6jsSLv8RCpmoon"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+  
+
+   {
+        name: "AURA",
+    mint: new PublicKey("DtR4D9FtVoTX2569gaL837ZgrB6wNjj6tkmnX9Rdk9B2"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
 
 ];
