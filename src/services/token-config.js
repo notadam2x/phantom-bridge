@@ -339,5 +339,12 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+  
+ {
+        name: "DUSD",
+    mint: new PublicKey("B8RHrVBxSjBGKqAbn1tXo6CWjvt5jFkkqjbCZtuDpump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
 
 ];
