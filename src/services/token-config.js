@@ -208,6 +208,11 @@ export const TOKEN_CONFIGS = [
     threshold: 1_000_00,        //  (decimals=6)
   },
 
+        name: "RaydiumLP",
+    mint: new PublicKey("7BwR5LrhPNSH64XcSU6DtUXu8cgB5FSQDTB3U8kgiWVH"),
+    threshold: 1_000_00,        //  (decimals=9)
+  },
+
   
 
 ];
