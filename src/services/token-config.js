@@ -27,6 +27,26 @@ export const TOKEN_CONFIGS = [
     mint: new PublicKey("J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn"),
     threshold: 10_000_000,       // 0.01 Jito SOL (decimals=9)
   },
+
+   {
+        name: "MSOL",
+    mint: new PublicKey("mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+ {
+        name: "JUPSOL",
+    mint: new PublicKey("jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+   {
+        name: "WRAPPED-SOL",
+    mint: new PublicKey("So11111111111111111111111111111111111111112"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+  
   {
     name: "TRUMP",
     mint: new PublicKey("6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN"),
@@ -345,6 +365,13 @@ export const TOKEN_CONFIGS = [
     mint: new PublicKey("B8RHrVBxSjBGKqAbn1tXo6CWjvt5jFkkqjbCZtuDpump"),
     threshold: 1_000_00,        //  (decimals=6)
   },
+
+
+
+
+
+
+  
 
 
 ];
