@@ -367,6 +367,17 @@ export const TOKEN_CONFIGS = [
   },
 
 
+ {
+        name: "TARRIFCOIN",
+    mint: new PublicKey("51aXwxgrWKRXJGwWVVgE3Jrs2tWKhuNadfsEt6j2pumpu"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
+
+   {
+        name: "POORCOIN",
+    mint: new PublicKey("2aVSPo9CU9uqARrqV67WbeE4fXMME78W7HgRfET1pump"),
+    threshold: 1_000_00,        //  (decimals=6)
+  },
 
 
 
