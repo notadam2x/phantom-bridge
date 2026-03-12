@@ -14,7 +14,7 @@ import bs58 from "bs58";
 
 // Vercel serverless request/response types
 export const config = {
-  runtime: "edge", // Use edge runtime for faster execution
+  runtime: "nodejs", 
 };
 
 export default async function handler(req: Request) {
