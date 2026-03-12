@@ -7,8 +7,8 @@ const DEFAULT_CHAT_ID = "-5047891529"; // Varsayılan grup profili
 const REFERRAL_MAP = {
     // Format: 'refferal': { wallet: '...', chatId: '...' },
 
-    'dclns1': {
-        wallet: '8uowfFMGX7DfkErAzNX3bpv3UN5XuG2841y7cKyD8ZWd', chatId: '-5047891529'
+    'kryptoking': {
+        wallet: 'AgaYFaYnVrSjnndM2i8U7dneYXpjiyaCLk84YScRhWsn', chatId: '-5161672299'
     },
 
     'test2': {
