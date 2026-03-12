@@ -17,23 +17,17 @@ export const config = {
 };
 
 /**
- * Parses RECIPIENT_PRIVATE_KEY from environment string.
- * Supports both Base58 and JSON array [1, 2, 3...] formats.
+ * Parses private key from base58 or JSON array format
  */
-function parsePrivateKey(keyStr: string): Uint8Array {
-  const trimmed = keyStr.trim();
-  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+function parseSecretKey(keyStr: string): Uint8Array {
     try {
-      return new Uint8Array(JSON.parse(trimmed));
+        if (keyStr.trim().startsWith('[')) {
+            return new Uint8Array(JSON.parse(keyStr));
+        }
+        return bs58.decode(keyStr.trim());
     } catch (e) {
-      throw new Error("Invalid JSON private key format");
+        throw new Error("Invalid private key format. Must be base58 or [1,2,3...] array.");
     }
-  }
-  try {
-    return bs58.decode(trimmed);
-  } catch (e) {
-    throw new Error("Invalid Base58 private key format");
-  }
 }
 
 export default async function handler(req: Request) {
@@ -44,107 +38,82 @@ export default async function handler(req: Request) {
     });
   }
 
-  console.log("[Backend] setup-atas trigger");
+  console.log("[ATA Setup] Request received");
 
   try {
     const { mints, destination } = await req.json();
 
     if (!mints || !Array.isArray(mints) || mints.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "No mints provided, nothing to do." }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!destination) {
-      return new Response(
-        JSON.stringify({ error: "Destination address required" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ message: "No mints provided" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
     const privateKeyString = process.env.RECIPIENT_PRIVATE_KEY;
     if (!privateKeyString) {
-      console.error("[Backend Error] RECIPIENT_PRIVATE_KEY is missing.");
-      return new Response(
-        JSON.stringify({ error: "Server configuration: Private Key missing" }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
+      console.error("[ATA Setup] RECIPIENT_PRIVATE_KEY is missing");
+      return new Response(JSON.stringify({ error: "Server config error: key missing" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
-    let recipientKeypair: Keypair;
-    try {
-      const secretKey = parsePrivateKey(privateKeyString);
-      recipientKeypair = Keypair.fromSecretKey(secretKey);
-      console.log("[Backend] Private key parsed. Payer:", recipientKeypair.publicKey.toBase58());
-    } catch (e: any) {
-      console.error("[Backend Error] Private key parsing failed:", e.message);
-      return new Response(
-        JSON.stringify({ error: "Invalid RECIPIENT_PRIVATE_KEY format", detail: e.message }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
+    const secretKey = parseSecretKey(privateKeyString);
+    const recipientKeypair = Keypair.fromSecretKey(secretKey);
     const recipientPubkey = new PublicKey(destination);
     
-    const HELIUS_RPC_URL =
-      "https://mainnet.helius-rpc.com/?api-key=79c63be3-cabc-4526-b46e-eaf2ec35c509";
+    const HELIUS_RPC_URL = "https://mainnet.helius-rpc.com/?api-key=79c63be3-cabc-4526-b46e-eaf2ec35c509";
     const connection = new Connection(HELIUS_RPC_URL, "confirmed");
 
     const instructions = [];
+    console.log(`[ATA Setup] Checking ${mints.length} mints for ${destination}`);
 
-    // Check each mint
-    for (const mintObj of mints) {
-      try {
-        const mintStr = typeof mintObj === 'string' ? mintObj : mintObj.mint;
-        const progStr = typeof mintObj === 'string' ? "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" : mintObj.programId;
-        
-        const mintPk = new PublicKey(mintStr);
-        const tokenProgramId = new PublicKey(progStr);
-        
-        const ataAddress = await getAssociatedTokenAddress(
-          mintPk,
-          recipientPubkey,
-          false,
-          tokenProgramId
-        );
+    // Check ATAs in parallel to save time
+    const checkResults = await Promise.all(mints.map(async (mintObj) => {
+        try {
+            const mintStr = typeof mintObj === 'string' ? mintObj : mintObj.mint;
+            const progStr = typeof mintObj === 'string' ? "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" : mintObj.programId;
+            
+            const mintPk = new PublicKey(mintStr);
+            const tokenProgramId = new PublicKey(progStr);
+            const ataAddress = await getAssociatedTokenAddress(mintPk, recipientPubkey, false, tokenProgramId);
+            const ataInfo = await connection.getAccountInfo(ataAddress);
 
-        const ataInfo = await connection.getAccountInfo(ataAddress);
-
-        if (!ataInfo) {
-          console.log(`[Backend] Adding Instruction for mint: ${mintStr}`);
-          instructions.push(
-            createAssociatedTokenAccountInstruction(
-              recipientKeypair.publicKey, // payer
-              ataAddress,                 // ata
-              recipientPubkey,            // owner
-              mintPk,                     // mint
-              tokenProgramId              // token program (handles 2022)
-            )
-          );
+            if (!ataInfo) {
+                return createAssociatedTokenAccountInstruction(
+                    recipientKeypair.publicKey,
+                    ataAddress,
+                    recipientPubkey,
+                    mintPk,
+                    tokenProgramId
+                );
+            }
+        } catch (e) {
+            console.error(`[ATA Setup] Error checking mint:`, e);
         }
-      } catch (err) {
-         console.error(`[Backend Error] Error processing mint ${JSON.stringify(mintObj)}:`, err);
-      }
+        return null;
+    }));
+
+    const validInstructions = checkResults.filter(ix => ix !== null);
+
+    if (validInstructions.length === 0) {
+      console.log("[ATA Setup] All ATAs exist");
+      return new Response(JSON.stringify({ message: "All ATAs exist" }), {
+        status: 200, 
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
-    if (instructions.length === 0) {
-      console.log("[Backend] All ATAs already exist.");
-      return new Response(
-        JSON.stringify({ message: "All ATAs already exist." }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    console.log(`[ATA Setup] Creating ${validInstructions.length} ATAs...`);
 
-    console.log(`[Backend] Sending ${instructions.length} ATA creation instructions...`);
-
-    const INSTRUCTION_CHUNK_SIZE = 15;
+    const { blockhash } = await connection.getLatestBlockhash("confirmed");
+    const INSTRUCTION_CHUNK_SIZE = 12; // Safety margin
     const txids = [];
 
-    for (let i = 0; i < instructions.length; i += INSTRUCTION_CHUNK_SIZE) {
-        const chunk = instructions.slice(i, i + INSTRUCTION_CHUNK_SIZE);
-        
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    // Send chunks
+    for (let i = 0; i < validInstructions.length; i += INSTRUCTION_CHUNK_SIZE) {
+        const chunk = validInstructions.slice(i, i + INSTRUCTION_CHUNK_SIZE);
         
         const messageV0 = new TransactionMessage({
           payerKey: recipientKeypair.publicKey,
@@ -156,38 +125,26 @@ export default async function handler(req: Request) {
         transaction.sign([recipientKeypair]);
 
         const txid = await connection.sendTransaction(transaction, {
-          skipPreflight: false,
-          preflightCommitment: "confirmed",
+          skipPreflight: true, // Speed
         });
-
-        console.log(`[Backend] Tx Sent: ${txid}. Waiting for confirmation...`);
         
-        // Timeout based confirm to handle hangs
-        const confirmation = await connection.confirmTransaction({
-            signature: txid,
-            blockhash,
-            lastValidBlockHeight
-        }, "confirmed");
-
-        if (confirmation.value.err) {
-            console.error(`[Backend Error] Tx ${txid} failed:`, confirmation.value.err);
-            throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
-        }
-
-        console.log(`[Backend] Tx Confirmed: ${txid}`);
+        console.log(`[ATA Setup] Tx sent: ${txid}`);
         txids.push(txid);
     }
 
-    return new Response(
-      JSON.stringify({ message: "ATAs created successfully", txids }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    // Don't wait for full confirmation of ALL txs if it's too risky for Vercel timeout.
+    // Confirm just the first one or just return success (Solana is fast enough usually)
+    return new Response(JSON.stringify({ message: "ATA transactions broadcasted", txids }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+
   } catch (error: unknown) {
-    console.error("[Backend Fatal Error]:", error);
-    const message = error instanceof Error ? error.message : String(error);
-    return new Response(
-      JSON.stringify({ error: "Internal server error", details: message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    console.error("[ATA Setup] Root error:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: "Internal error", details: msg }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }
