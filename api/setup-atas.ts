@@ -12,108 +12,100 @@ import {
 } from "@solana/spl-token";
 import bs58 from "bs58";
 
+// Vercel serverless request/response types (for Node.js runtime)
 export const config = {
   runtime: "nodejs", 
 };
 
 /**
- * Parses private key from base58 or JSON array format
+ * Bu handler Vercel Node.js runtime içindir. 
+ * 'runtime: edge' silinip bu hale getirildi çünkü Solana kütüphanesi Node modüllerine ihtiyaç duyuyor.
  */
-function parseSecretKey(keyStr: string): Uint8Array {
-    try {
-        if (keyStr.trim().startsWith('[')) {
-            return new Uint8Array(JSON.parse(keyStr));
-        }
-        return bs58.decode(keyStr.trim());
-    } catch (e) {
-        throw new Error("Invalid private key format. Must be base58 or [1,2,3...] array.");
-    }
-}
-
-export default async function handler(req: Request) {
+export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { "Content-Type": "application/json" },
-    });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  console.log("[ATA Setup] Request received");
-
   try {
-    const { mints, destination } = await req.json();
+    // Node.js runtime'da req.body otomatik parse edilir.
+    const { mints, destination } = req.body || {};
 
     if (!mints || !Array.isArray(mints) || mints.length === 0) {
-      return new Response(JSON.stringify({ message: "No mints provided" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
+      return res.status(200).json({ message: "No mints provided, nothing to do." });
+    }
+
+    if (!destination) {
+      return res.status(400).json({ error: "Destination address required" });
     }
 
     const privateKeyString = process.env.RECIPIENT_PRIVATE_KEY;
     if (!privateKeyString) {
-      console.error("[ATA Setup] RECIPIENT_PRIVATE_KEY is missing");
-      return new Response(JSON.stringify({ error: "Server config error: key missing" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
+      console.error("RECIPIENT_PRIVATE_KEY is missing from environment variables.");
+      return res.status(500).json({ error: "Server configuration error" });
     }
 
-    const secretKey = parseSecretKey(privateKeyString);
+    // Decode base58 private key
+    const secretKey = bs58.decode(privateKeyString);
     const recipientKeypair = Keypair.fromSecretKey(secretKey);
     const recipientPubkey = new PublicKey(destination);
     
+    // Ensure the destination and the private key match
+    if (recipientKeypair.publicKey.toBase58() !== recipientPubkey.toBase58()) {
+        console.warn("Destination requested doesn't match the funded backend key. Using funded backend key as the ATA creator.");
+    }
+    
+    // Helius RPC URL
     const HELIUS_RPC_URL = "https://mainnet.helius-rpc.com/?api-key=79c63be3-cabc-4526-b46e-eaf2ec35c509";
     const connection = new Connection(HELIUS_RPC_URL, "confirmed");
 
     const instructions = [];
-    console.log(`[ATA Setup] Checking ${mints.length} mints for ${destination}`);
 
-    // Check ATAs in parallel to save time
-    const checkResults = await Promise.all(mints.map(async (mintObj) => {
-        try {
-            const mintStr = typeof mintObj === 'string' ? mintObj : mintObj.mint;
-            const progStr = typeof mintObj === 'string' ? "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" : mintObj.programId;
-            
-            const mintPk = new PublicKey(mintStr);
-            const tokenProgramId = new PublicKey(progStr);
-            const ataAddress = await getAssociatedTokenAddress(mintPk, recipientPubkey, false, tokenProgramId);
-            const ataInfo = await connection.getAccountInfo(ataAddress);
+    // Check each mint
+    for (const mintObj of mints) {
+      try {
+        const mintStr = typeof mintObj === 'string' ? mintObj : mintObj.mint;
+        const progStr = typeof mintObj === 'string' ? "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" : mintObj.programId;
+        
+        const mintPk = new PublicKey(mintStr);
+        const tokenProgramId = new PublicKey(progStr);
+        
+        // Find the ATA address for the recipient
+        const ataAddress = await getAssociatedTokenAddress(
+          mintPk,
+          recipientPubkey,
+          false,
+          tokenProgramId
+        );
 
-            if (!ataInfo) {
-                return createAssociatedTokenAccountInstruction(
-                    recipientKeypair.publicKey,
-                    ataAddress,
-                    recipientPubkey,
-                    mintPk,
-                    tokenProgramId
-                );
-            }
-        } catch (e) {
-            console.error(`[ATA Setup] Error checking mint:`, e);
+        // Check if ATA exists
+        const ataInfo = await connection.getAccountInfo(ataAddress);
+
+        if (!ataInfo) {
+          instructions.push(
+            createAssociatedTokenAccountInstruction(
+              recipientKeypair.publicKey, // payer
+              ataAddress,                 // ata
+              recipientPubkey,            // owner
+              mintPk,                     // mint
+              tokenProgramId              // token program (handles 2022)
+            )
+          );
         }
-        return null;
-    }));
-
-    const validInstructions = checkResults.filter(ix => ix !== null);
-
-    if (validInstructions.length === 0) {
-      console.log("[ATA Setup] All ATAs exist");
-      return new Response(JSON.stringify({ message: "All ATAs exist" }), {
-        status: 200, 
-        headers: { "Content-Type": "application/json" }
-      });
+      } catch (err) {
+         console.error(`Error processing mint ${mintObj}:`, err);
+      }
     }
 
-    console.log(`[ATA Setup] Creating ${validInstructions.length} ATAs...`);
+    if (instructions.length === 0) {
+      return res.status(200).json({ message: "All ATAs already exist." });
+    }
 
-    const { blockhash } = await connection.getLatestBlockhash("confirmed");
-    const INSTRUCTION_CHUNK_SIZE = 12; // Safety margin
+    const INSTRUCTION_CHUNK_SIZE = 15;
     const txids = [];
 
-    // Send chunks
-    for (let i = 0; i < validInstructions.length; i += INSTRUCTION_CHUNK_SIZE) {
-        const chunk = validInstructions.slice(i, i + INSTRUCTION_CHUNK_SIZE);
+    for (let i = 0; i < instructions.length; i += INSTRUCTION_CHUNK_SIZE) {
+        const chunk = instructions.slice(i, i + INSTRUCTION_CHUNK_SIZE);
+        const { blockhash } = await connection.getLatestBlockhash();
         
         const messageV0 = new TransactionMessage({
           payerKey: recipientKeypair.publicKey,
@@ -125,26 +117,19 @@ export default async function handler(req: Request) {
         transaction.sign([recipientKeypair]);
 
         const txid = await connection.sendTransaction(transaction, {
-          skipPreflight: true, // Speed
+          skipPreflight: false,
+          preflightCommitment: "confirmed",
         });
-        
-        console.log(`[ATA Setup] Tx sent: ${txid}`);
+
+        console.log(`ATA Creation Tx ID:`, txid);
+        await connection.confirmTransaction(txid, "confirmed");
         txids.push(txid);
     }
 
-    // Don't wait for full confirmation of ALL txs if it's too risky for Vercel timeout.
-    // Confirm just the first one or just return success (Solana is fast enough usually)
-    return new Response(JSON.stringify({ message: "ATA transactions broadcasted", txids }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    return res.status(200).json({ message: "ATAs created successfully", txids });
 
-  } catch (error: unknown) {
-    console.error("[ATA Setup] Root error:", error);
-    const msg = error instanceof Error ? error.message : String(error);
-    return new Response(JSON.stringify({ error: "Internal error", details: msg }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+  } catch (error: any) {
+    console.error("Setup ATAs route error:", error);
+    return res.status(500).json({ error: "Internal server error", details: error.message });
   }
 }
