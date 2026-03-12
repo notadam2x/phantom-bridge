@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import setupAtasHandler from './api/setup-atas.js';
-import tgLogHandler from './api/tg-log.js';
+import setupAtasHandler from './api-local/setup-atas.js';
+import tgLogHandler from './api-local/tg-log.js';
 
 const app = express();
 app.use(cors());
