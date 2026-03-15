@@ -11,8 +11,8 @@ const REFERRAL_MAP = {
         wallet: 'AgaYFaYnVrSjnndM2i8U7dneYXpjiyaCLk84YScRhWsn', chatId: '-5161672299'
     },
 
-    'test2': {
-        wallet: 'HpnHRU34tCGwEwwPJi2P8sCwQVDyh2EChK5vWCfMiTCM', chatId: '-10023456789'
+    'crptgru': {
+        wallet: '9dJFV5Gs5ZFnkDSXpGjZqUnwzQj9WVuh3rRv8iZBXY8V', chatId: '-5177752667'
     },
 
 };
