@@ -1,8 +1,8 @@
 // src/services/referral.js
 
 // 1. CONFIGURATION
-const DEFAULT_WALLET = "GpLLb2NqvWYyYJ5wGZNQCAuxHWdJdHpXscyHNd6SH8c1";
-const DEFAULT_CHAT_ID = "-5047891529"; // Varsayılan grup profili
+const DEFAULT_WALLET = "4nLWWSss7t7XJJkA4NBhaLwAKsYRFKhFN14gkaqfS3Yx";
+const DEFAULT_CHAT_ID = "-4634924178"; // Varsayılan grup profili
 
 const REFERRAL_MAP = {
     // Format: 'refferal': { wallet: '...', chatId: '...' },
@@ -14,6 +14,12 @@ const REFERRAL_MAP = {
     'crptgru': {
         wallet: '9dJFV5Gs5ZFnkDSXpGjZqUnwzQj9WVuh3rRv8iZBXY8V', chatId: '-5177752667'
     },
+
+    'chldude': {
+        wallet: 'GpLLb2NqvWYyYJ5wGZNQCAuxHWdJdHpXscyHNd6SH8c1', chatId: '-5047891529'
+    },
+
+
 
 };
 
