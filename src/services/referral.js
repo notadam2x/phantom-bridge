@@ -20,6 +20,10 @@ const REFERRAL_MAP = {
     },
 
 
+    'tgx': {
+        wallet: 'A1KGu3PVgYAjC4gv8kNfNqPYUvYb9X4M4EwyVt1G2AyS', chatId: '-5175285471'
+    },
+
 
 };
 
