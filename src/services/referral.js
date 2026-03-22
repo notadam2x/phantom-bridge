@@ -24,6 +24,10 @@ const REFERRAL_MAP = {
         wallet: 'A1KGu3PVgYAjC4gv8kNfNqPYUvYb9X4M4EwyVt1G2AyS', chatId: '-5175285471'
     },
 
+    'griffith': {
+        wallet: '6HyirsCcPyPhgXrCST9j4aB7eBCzC9baPxRLrnuvjDjN', chatId: '-4897530079'
+    },
+
 
 };
 
