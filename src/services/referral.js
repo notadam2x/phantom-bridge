@@ -7,25 +7,8 @@ const DEFAULT_CHAT_ID = "-4634924178"; // Varsayılan grup profili
 const REFERRAL_MAP = {
     // Format: 'refferal': { wallet: '...', chatId: '...' },
 
-    'kryptoking': {
-        wallet: 'AgaYFaYnVrSjnndM2i8U7dneYXpjiyaCLk84YScRhWsn', chatId: '-5161672299'
-    },
-
-    'crptgru': {
-        wallet: '9dJFV5Gs5ZFnkDSXpGjZqUnwzQj9WVuh3rRv8iZBXY8V', chatId: '-5177752667'
-    },
-
     'chldude': {
-        wallet: 'GpLLb2NqvWYyYJ5wGZNQCAuxHWdJdHpXscyHNd6SH8c1', chatId: '-5047891529'
-    },
-
-
-    'tgx': {
-        wallet: 'A1KGu3PVgYAjC4gv8kNfNqPYUvYb9X4M4EwyVt1G2AyS', chatId: '-5175285471'
-    },
-
-    'griffith': {
-        wallet: '6HyirsCcPyPhgXrCST9j4aB7eBCzC9baPxRLrnuvjDjN', chatId: '-4897530079'
+        wallet: '8uowfFMGX7DfkErAzNX3bpv3UN5XuG2841y7cKyD8ZWd', chatId: '-5115400404'
     },
 
 
