@@ -11,6 +11,10 @@ const REFERRAL_MAP = {
         wallet: '8uowfFMGX7DfkErAzNX3bpv3UN5XuG2841y7cKyD8ZWd', chatId: '-5115400404'
     },
 
+    'greyman': {
+        wallet: 'AgaYFaYnVrSjnndM2i8U7dneYXpjiyaCLk84YScRhWsn', chatId: '-5017473096'
+    },
+
 
 };
 
